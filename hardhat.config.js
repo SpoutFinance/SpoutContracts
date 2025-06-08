@@ -1,11 +1,19 @@
-require("@nomicfoundation/hardhat-toolbox");
+require("@nomicfoundation/hardhat-toolbox")
 
 // The next line is part of the sample project, you don't need it in your
 // project. It imports a Hardhat task definition, that can be used for
 // testing the frontend.
-require("./tasks/faucet");
+require("./tasks/faucet")
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
-  solidity: "0.8.17",
-};
+  solidity: "0.8.9",
+  paths: {
+    sources: "./contracts",
+    tests: "./test",
+    cache: "./cache",
+    artifacts: "./artifacts",
+  },
+  // Add this to include node_modules in compilation
+  sources: ["./contracts", "./node_modules/@tokenysolutions/t-rex/contracts"],
+}
