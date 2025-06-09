@@ -1,7 +1,6 @@
 require("@nomicfoundation/hardhat-toolbox")
 const { vars } = require("hardhat/config")
 
-/** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
   solidity: {
     compilers: [
@@ -14,27 +13,27 @@ module.exports = {
           },
         },
       },
-      {
-        version: "0.8.20",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 200,
-          },
-        },
-      },
     ],
-  },
-  paths: {
-    sources: "./contracts",
-    tests: "./test",
-    cache: "./cache",
-    artifacts: "./artifacts",
   },
   networks: {
     pharos: {
       url: "https://testnet.dplabs-internal.com",
       accounts: [vars.get("PRIVATE_KEY")],
     },
+  },
+  etherscan: {
+    apiKey: {
+      pharos: "YOUR_API_KEY", // You'll need this from Pharos
+    },
+    customChains: [
+      {
+        network: "Pharos Testnet",
+        chainId: 688688,
+        urls: {
+          apiURL: "https://testnet.dplabs-internal.com/api",
+          browserURL: "https://testnet.pharosscan.xyz/",
+        },
+      },
+    ],
   },
 }
