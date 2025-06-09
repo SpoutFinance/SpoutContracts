@@ -1,19 +1,39 @@
 require("@nomicfoundation/hardhat-toolbox")
+const { vars } = require("hardhat/config")
 
-// The next line is part of the sample project, you don't need it in your
-// project. It imports a Hardhat task definition, that can be used for
-// testing the frontend.
-require("./tasks/faucet")
-
-/** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
-  solidity: "0.8.9",
-  paths: {
-    sources: "./contracts",
-    tests: "./test",
-    cache: "./cache",
-    artifacts: "./artifacts",
+  solidity: {
+    compilers: [
+      {
+        version: "0.8.17",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
+        },
+      },
+    ],
   },
-  // Add this to include node_modules in compilation
-  sources: ["./contracts", "./node_modules/@tokenysolutions/t-rex/contracts"],
+  networks: {
+    pharos: {
+      url: "https://testnet.dplabs-internal.com",
+      accounts: [vars.get("PRIVATE_KEY")],
+    },
+  },
+  etherscan: {
+    apiKey: {
+      pharos: "YOUR_API_KEY", // You'll need this from Pharos
+    },
+    customChains: [
+      {
+        network: "Pharos Testnet",
+        chainId: 688688,
+        urls: {
+          apiURL: "https://testnet.dplabs-internal.com/api",
+          browserURL: "https://testnet.pharosscan.xyz/",
+        },
+      },
+    ],
+  },
 }
