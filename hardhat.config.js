@@ -1,19 +1,40 @@
 require("@nomicfoundation/hardhat-toolbox")
-
-// The next line is part of the sample project, you don't need it in your
-// project. It imports a Hardhat task definition, that can be used for
-// testing the frontend.
-require("./tasks/faucet")
+const { vars } = require("hardhat/config")
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
-  solidity: "0.8.9",
+  solidity: {
+    compilers: [
+      {
+        version: "0.8.17",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
+        },
+      },
+      {
+        version: "0.8.20",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
+        },
+      },
+    ],
+  },
   paths: {
     sources: "./contracts",
     tests: "./test",
     cache: "./cache",
     artifacts: "./artifacts",
   },
-  // Add this to include node_modules in compilation
-  sources: ["./contracts", "./node_modules/@tokenysolutions/t-rex/contracts"],
+  networks: {
+    pharos: {
+      url: "https://testnet.dplabs-internal.com",
+      accounts: [vars.get("PRIVATE_KEY")],
+    },
+  },
 }
