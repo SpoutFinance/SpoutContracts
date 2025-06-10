@@ -10,5 +10,9 @@
   "TrustedIssuersRegistry": {
     "Deployment owner": "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7",
     "Deployment address": "0xfc26cf55D53356Ce8C5c65368E3C9E8272c2c988"
+  },
+  "IdentityRegistryStorage": {
+    "Deployment owner": "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7",
+    "Deployment address": "0x8237C556EE389DC41C42Cd9eA62483D507f286B3"
   }
 }
