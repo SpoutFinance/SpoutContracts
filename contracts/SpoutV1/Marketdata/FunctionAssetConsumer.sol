@@ -7,20 +7,17 @@ import {FunctionsRequest} from "@chainlink/contracts/src/v0.8/functions/v1_0_0/l
 contract FunctionAssetConsumer is FunctionsClient {
     using FunctionsRequest for FunctionsRequest.Request;
 
-    string public s_lastAsset; // The price of the last quoted asset
-    string public s_requestedAsset;
-    uint256 public s_lastAssetPrice;
-    // State variables to store the last request ID, response, and error
-    bytes32 public s_lastRequestId;
-    bytes public s_lastResponse;
-    bytes public s_lastError;
+    // Mappings to support multiple assets
+    mapping(bytes32 => string) public requestIdToAsset;
+    mapping(string => uint256) public assetToPrice;
+    mapping(bytes32 => bytes) public requestIdToResponse;
+    mapping(bytes32 => bytes) public requestIdToError;
 
     // Supported networks https://docs.chain.link/chainlink-functions/supported-networks
-    address constant ROUTER = 0xf9B8fc078197181C841c296C876945aaa425B278; // The router address for Base Sepolia
+    address constant ROUTER = 0xf9B8fc078197181C841c296C876945aaa425B278; // Base Sepolia
     bytes32 constant DON_ID =
         0x66756e2d657468657265756d2d7365706f6c69612d3100000000000000000000;
 
-    //Callback gas limit
     uint32 constant GAS_LIMIT = 300000;
 
     string public constant SOURCE =
@@ -39,19 +36,19 @@ contract FunctionAssetConsumer is FunctionsClient {
         "  throw Error('Request failed');"
         "}"
         "const json = response.data;"
-        "const askPrice = json?.quotes?.LQD?.ap;"
+        "const askPrice = json?.quotes?.[asset]?.ap;"
         "if (typeof askPrice !== 'number') {"
         "  throw Error('askPrice is not a valid number');"
         "}"
         "const scaledPrice = Math.round(askPrice * 100);"
         "return Functions.encodeUint256(scaledPrice);";
 
-    // Event to log responses
     event Response(
         bytes32 indexed requestId,
         string asset,
+        uint256 price,
         bytes response,
-        bytes err
+        bytes error
     );
 
     error UnexpectedRequestID(bytes32 requestId);
@@ -63,21 +60,21 @@ contract FunctionAssetConsumer is FunctionsClient {
         uint64 subscriptionId
     ) external returns (bytes32 requestId) {
         FunctionsRequest.Request memory req;
-        req.initializeRequestForInlineJavaScript(SOURCE); // Initialize the request with JS code
+        req.initializeRequestForInlineJavaScript(SOURCE);
 
         string[] memory args = new string[](1);
         args[0] = asset;
-        req.setArgs(args); // Set the arguments for the request
+        req.setArgs(args);
 
-        // Send the request and store the request ID
-        s_lastRequestId = _sendRequest(
+        requestId = _sendRequest(
             req.encodeCBOR(),
             subscriptionId,
             GAS_LIMIT,
             DON_ID
         );
-        s_requestedAsset = asset;
-        return s_lastRequestId;
+
+        requestIdToAsset[requestId] = asset;
+        return requestId;
     }
 
     function fulfillRequest(
@@ -85,14 +82,21 @@ contract FunctionAssetConsumer is FunctionsClient {
         bytes memory response,
         bytes memory err
     ) internal override {
-        if (s_lastRequestId != requestId) {
-            revert UnexpectedRequestID(requestId); // Check if request IDs match
+        string memory asset = requestIdToAsset[requestId];
+        if (bytes(asset).length == 0) {
+            revert UnexpectedRequestID(requestId);
         }
 
-        s_lastError = err;
-        s_lastResponse = response;
+        requestIdToResponse[requestId] = response;
+        requestIdToError[requestId] = err;
 
-        s_lastAssetPrice = abi.decode(response, (uint256));
-        s_lastAsset = s_requestedAsset;
+        uint256 price = abi.decode(response, (uint256));
+        assetToPrice[asset] = price;
+
+        emit Response(requestId, asset, price, response, err);
+    }
+
+    function getPrice(string memory asset) external view returns (uint256) {
+        return assetToPrice[asset];
     }
 }
