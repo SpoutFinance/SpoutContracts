@@ -7,10 +7,10 @@ const main = async () => {
   await trexFactory.deployed()
 
   const tokenDetails = {
-    name: "MyRWA",
-    symbol: "MRWA",
+    name: "Spout US Corporate Bond Token", // Chosen name for the spout token
+    symbol: "SUSC",
     decimals: 18,
-    owner: "0xYourAddress",
+    owner: "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7", // Owner address of who can mint/burn and set compliance settings within the contract
     irAgents: [],
     tokenAgents: [],
     complianceModules: [],
