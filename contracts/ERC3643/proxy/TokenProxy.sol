@@ -36,7 +36,6 @@
 //                                        +@@@@%-
 //                                        :#%%=
 //
-
 /**
  *     NOTICE
  *
@@ -63,39 +62,67 @@
 
 pragma solidity 0.8.17;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "./AbstractProxy.sol";
 
-import "./Roles.sol";
+contract TokenProxy is AbstractProxy {
 
-contract AgentRole is Ownable {
-    using Roles for Roles.Role;
-
-    Roles.Role private _agents;
-
-    event AgentAdded(address indexed _agent);
-    event AgentRemoved(address indexed _agent);
-
-    modifier onlyAgent() {
+    constructor(
+        address implementationAuthority,
+        address _identityRegistry,
+        address _compliance,
+        string memory _name,
+        string memory _symbol,
+        uint8 _decimals,
+        // _onchainID can be 0 address if the token has no ONCHAINID, ONCHAINID can be set later by the token Owner
+        address _onchainID
+    ) {
         require(
-            isAgent(msg.sender),
-            "AgentRole: caller does not have the Agent role"
-        );
-        _;
+            implementationAuthority != address(0)
+            && _identityRegistry != address(0)
+            && _compliance != address(0)
+        , "invalid argument - zero address");
+        require(
+            keccak256(abi.encode(_name)) != keccak256(abi.encode(""))
+            && keccak256(abi.encode(_symbol)) != keccak256(abi.encode(""))
+        , "invalid argument - empty string");
+        require(0 <= _decimals && _decimals <= 18, "decimals between 0 and 18");
+        _storeImplementationAuthority(implementationAuthority);
+        emit ImplementationAuthoritySet(implementationAuthority);
+
+        address logic = (ITREXImplementationAuthority(getImplementationAuthority())).getTokenImplementation();
+
+        // solhint-disable-next-line avoid-low-level-calls
+        (bool success, ) = logic.delegatecall(
+                abi.encodeWithSignature(
+                    "init(address,address,string,string,uint8,address)",
+                    _identityRegistry,
+                    _compliance,
+                    _name,
+                    _symbol,
+                    _decimals,
+                    _onchainID
+                )
+            );
+        require(success, "Initialization failed.");
     }
 
-    function addAgent(address _agent) public onlyOwner {
-        require(_agent != address(0), "invalid argument - zero address");
-        _agents.add(_agent);
-        emit AgentAdded(_agent);
-    }
+    // solhint-disable-next-line no-complex-fallback
+    fallback() external payable {
+        address logic = (ITREXImplementationAuthority(getImplementationAuthority())).getTokenImplementation();
 
-    function removeAgent(address _agent) public onlyOwner {
-        require(_agent != address(0), "invalid argument - zero address");
-        _agents.remove(_agent);
-        emit AgentRemoved(_agent);
-    }
-
-    function isAgent(address _agent) public view returns (bool) {
-        return _agents.has(_agent);
+        // solhint-disable-next-line no-inline-assembly
+        assembly {
+            calldatacopy(0x0, 0x0, calldatasize())
+            let success := delegatecall(sub(gas(), 10000), logic, 0x0, calldatasize(), 0, 0)
+            let retSz := returndatasize()
+            returndatacopy(0, 0, retSz)
+            switch success
+                case 0 {
+                    revert(0, retSz)
+                }
+                default {
+                    return(0, retSz)
+                }
+        }
     }
 }

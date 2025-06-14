@@ -36,7 +36,6 @@
 //                                        +@@@@%-
 //                                        :#%%=
 //
-
 /**
  *     NOTICE
  *
@@ -63,39 +62,15 @@
 
 pragma solidity 0.8.17;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
+interface IProxy {
 
-import "./Roles.sol";
+    /// events
 
-contract AgentRole is Ownable {
-    using Roles for Roles.Role;
+    event ImplementationAuthoritySet(address indexed _implementationAuthority);
 
-    Roles.Role private _agents;
+    /// functions
 
-    event AgentAdded(address indexed _agent);
-    event AgentRemoved(address indexed _agent);
+    function setImplementationAuthority(address _newImplementationAuthority) external;
 
-    modifier onlyAgent() {
-        require(
-            isAgent(msg.sender),
-            "AgentRole: caller does not have the Agent role"
-        );
-        _;
-    }
-
-    function addAgent(address _agent) public onlyOwner {
-        require(_agent != address(0), "invalid argument - zero address");
-        _agents.add(_agent);
-        emit AgentAdded(_agent);
-    }
-
-    function removeAgent(address _agent) public onlyOwner {
-        require(_agent != address(0), "invalid argument - zero address");
-        _agents.remove(_agent);
-        emit AgentRemoved(_agent);
-    }
-
-    function isAgent(address _agent) public view returns (bool) {
-        return _agents.has(_agent);
-    }
+    function getImplementationAuthority() external view returns(address);
 }
