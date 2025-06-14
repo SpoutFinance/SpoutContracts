@@ -78,7 +78,7 @@ interface ITREXFactory {
         // set it to ZERO address if you want to deploy a new storage
         // if an address is provided, please ensure that the factory is set as owner of the contract
         address irs;
-        // ONCHAINID of the token
+        // ONCHAINID of the token, useful when wanting to issue new tokens for different entities
         // solhint-disable-next-line var-name-mixedcase
         address ONCHAINID;
         // list of agents of the identity registry (can be set to an AgentManager contract)

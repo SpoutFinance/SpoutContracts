@@ -103,7 +103,35 @@ contract TREXFactory is ITREXFactory, Ownable {
         TokenDetails calldata _tokenDetails,
         ClaimDetails calldata _claimDetails
     ) external override onlyOwner {
-     ac
+        require(tokenDeployed[_salt] == address(0), "token already deployed");
+        require(
+            (_claimDetails.issuers).length ==
+                (_claimDetails.issuerClaims).length,
+            "claim pattern not valid"
+        );
+        require(
+            (_claimDetails.issuers).length <= 5,
+            "max 5 claim issuers at deployment"
+        );
+        require(
+            (_claimDetails.claimTopics).length <= 5,
+            "max 5 claim topics at deployment"
+        );
+        require(
+            (_tokenDetails.irAgents).length <= 5 &&
+                (_tokenDetails.tokenAgents).length <= 5,
+            "max 5 agents at deployment"
+        );
+        require(
+            (_tokenDetails.complianceModules).length <= 30,
+            "max 30 module actions at deployment"
+        );
+        require(
+            (_tokenDetails.complianceModules).length >=
+                (_tokenDetails.complianceSettings).length,
+            "invalid compliance pattern"
+        );
+
         ITrustedIssuersRegistry tir = ITrustedIssuersRegistry(
             _deployTIR(_salt, _implementationAuthority)
         );
