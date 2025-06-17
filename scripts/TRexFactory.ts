@@ -2,8 +2,10 @@ import { ethers } from "hardhat"
 
 const main = async () => {
   const TREXFactory = await ethers.getContractFactory("TREXFactory")
-  const trexFactory =
-    await TREXFactory.deploy(/* implementation authority, idFactory, etc. */)
+  const trexFactory = await TREXFactory.deploy(
+    "0xImplementationAuthorityAddress", // Replace with actual address
+    "0xIdFactoryAddress" // Replace with actual address
+  )
   await trexFactory.deployed()
 
   // TokenDetails struct holds all the necessary details for deploying a new T-REX token and its associated contracts
@@ -27,10 +29,12 @@ const main = async () => {
       [1],
     ],
     issuers: [
+      "0x5fbdb2315678afecb367f032d93f642f64180aa3",
       /* Trusted issuers addresses */
       // Smart contract address that issues claims for the compliance Topics.
     ],
     issuerClaims: [
+      [1],
       /* Claims that issuers are allowed to emit, by index corresponding to the issuers indexes */
     ],
   }
@@ -38,7 +42,7 @@ const main = async () => {
   // Deploy the full suite of T-REX contracts using CREATE2 opcode
   // The _salt parameter ensures contracts are deployed at predetermined addresses
   await trexFactory.deployTREXSuite(
-    "MyTokenDeployment1", // Salt string to generate unique addresses
+    "SpoutUSCorporateBondToken", // Salt string to generate unique addresses
     tokenDetails,
     claimDetails
   )

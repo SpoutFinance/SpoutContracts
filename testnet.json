@@ -18,5 +18,10 @@
     "Deployment owner": "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7",
     "Deployment address": "0x8237C556EE389DC41C42Cd9eA62483D507f286B3",
     "Contract Name": "IdentityRegistryStorage"
+  },
+  "ClaimIssuer": {
+    "Deployment owner": "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7",
+    "Deployment address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+    "Contract Name": "ClaimIssuer"
   }
 }
