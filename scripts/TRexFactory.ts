@@ -3,8 +3,8 @@ import { ethers } from "hardhat"
 const main = async () => {
   const TREXFactory = await ethers.getContractFactory("TREXFactory")
   const trexFactory = await TREXFactory.deploy(
-    "0x5FbDB2315678afecb367f032d93F642f64180aa3", // Replace with actual address
-    "0xIdFactoryAddress" // Replace with actual address
+    "0xBD456121D833e3d29Ef83c86f8dc57c97630878A", // Replace with actual address
+    "0xA37b1f4D5a8876184D62b9097335A4f4555b7c5f" // Replace with actual address
   )
   await trexFactory.deployed()
 
@@ -29,7 +29,7 @@ const main = async () => {
       [1],
     ],
     issuers: [
-      "0x5fbdb2315678afecb367f032d93f642f64180aa3",
+      "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7",
       /* Trusted issuers addresses */
       // Smart contract address that issues claims for the compliance Topics.
     ],
@@ -41,11 +41,34 @@ const main = async () => {
 
   // Deploy the full suite of T-REX contracts using CREATE2 opcode
   // The _salt parameter ensures contracts are deployed at predetermined addresses
-  await trexFactory.deployTREXSuite(
+  const tx = await trexFactory.deployTREXSuite(
     "SpoutUSCorporateBondToken", // Salt string to generate unique addresses
     tokenDetails,
     claimDetails
   )
+
+  // Wait for the transaction to be mined and get the receipt
+  const receipt = await tx.wait()
+
+  // Find the TREXSuiteDeployed event in the transaction receipt
+  const suiteDeployedEvent = receipt.events?.find(
+    (e) => e.event === "TREXSuiteDeployed"
+  )
+
+  if (suiteDeployedEvent && suiteDeployedEvent.args) {
+    console.log("✅ T-REX Suite Deployed! Proxy addresses:")
+    console.log("-----------------------------------------")
+    console.log("Token Proxy:                ", suiteDeployedEvent.args._token)
+    console.log("Identity Registry Proxy:    ", suiteDeployedEvent.args._ir)
+    console.log("Identity Registry Storage:  ", suiteDeployedEvent.args._irs)
+    console.log("Trusted Issuers Registry:   ", suiteDeployedEvent.args._tir)
+    console.log("Claim Topics Registry:      ", suiteDeployedEvent.args._ctr)
+    console.log("Modular Compliance Proxy:   ", suiteDeployedEvent.args._mc)
+    console.log("Deployment Salt:            ", suiteDeployedEvent.args._salt)
+    console.log("-----------------------------------------")
+  } else {
+    console.error("Error: TREXSuiteDeployed event not found.")
+  }
 }
 main()
   .then(() => process.exit(0))

@@ -1,0 +1,12 @@
+{
+  "ImplementationAuthority": {
+    "Deployment owner": "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7",
+    "Deployment address": "0xBD456121D833e3d29Ef83c86f8dc57c97630878A",
+    "Contract Name": "TREXImplementationAuthority"
+  },
+  "IdFactory": {
+    "Deployment owner": "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7",
+    "Deployment address": "0xA37b1f4D5a8876184D62b9097335A4f4555b7c5f",
+    "Contract Name": "IdFactory"
+  }
+}
