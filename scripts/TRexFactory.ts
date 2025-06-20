@@ -3,7 +3,7 @@ import { ethers } from "hardhat"
 const main = async () => {
   const TREXFactory = await ethers.getContractFactory("TREXFactory")
   const trexFactory = await TREXFactory.deploy(
-    "0xImplementationAuthorityAddress", // Replace with actual address
+    "0x5FbDB2315678afecb367f032d93F642f64180aa3", // Replace with actual address
     "0xIdFactoryAddress" // Replace with actual address
   )
   await trexFactory.deployed()
