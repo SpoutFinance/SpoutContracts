@@ -7,12 +7,14 @@ async function main() {
   // Set a gas price override to prevent "replacement fee too low" errors on Base Sepolia
   // The value is in Wei. 2 Gwei is a common, safe value.
   const feeData = await ethers.provider.getFeeData()
+  const maxFeePerGas =
+    feeData.maxFeePerGas ?? ethers.utils.parseUnits("5", "gwei")
+  const maxPriorityFeePerGas =
+    feeData.maxPriorityFeePerGas ?? ethers.utils.parseUnits("2", "gwei")
 
   const overrides = {
-    maxFeePerGas: feeData.maxFeePerGas?.add(
-      ethers.utils.parseUnits("2", "gwei")
-    ),
-    maxPriorityFeePerGas: feeData.maxPriorityFeePerGas?.add(
+    maxFeePerGas: maxFeePerGas.add(ethers.utils.parseUnits("2", "gwei")),
+    maxPriorityFeePerGas: maxPriorityFeePerGas.add(
       ethers.utils.parseUnits("1", "gwei")
     ),
   }
@@ -32,19 +34,9 @@ async function main() {
   const Token = await ethers.getContractFactory(
     "contracts/ERC3643/token/Token.sol:Token"
   )
-  const tokenLogic = await Token.deploy()
+  const tokenLogic = await Token.deploy(overrides)
   await tokenLogic.deployed()
   console.log("✅ Token logic deployed at:", tokenLogic.address)
-
-  const ModularCompliance = await ethers.getContractFactory(
-    "contracts/ERC3643/compliance/modular/ModularCompliance.sol:ModularCompliance"
-  )
-  const modularComplianceLogic = await ModularCompliance.deploy(overrides)
-  await modularComplianceLogic.deployed()
-  console.log(
-    "✅ ModularCompliance logic deployed at:",
-    modularComplianceLogic.address
-  )
 
   const IdentityRegistry = await ethers.getContractFactory(
     "contracts/ERC3643/registry/implementation/IdentityRegistry.sol:IdentityRegistry"
@@ -99,8 +91,7 @@ async function main() {
   const trexIA = await TREXImplementationAuthority.deploy(
     true, // referenceStatus: this is the main IA
     ethers.constants.AddressZero, // trexFactory: placeholder, will be set later
-    ethers.constants.AddressZero, // iaFactory: placeholder for now
-    overrides
+    ethers.constants.AddressZero // iaFactory: placeholder for now
   )
   await trexIA.deployed()
   console.log("✅ TREXImplementationAuthority deployed at:", trexIA.address)
@@ -113,7 +104,6 @@ async function main() {
     irImplementation: identityRegistryLogic.address,
     irsImplementation: identityRegistryStorageLogic.address,
     tirImplementation: trustedIssuersRegistryLogic.address,
-    mcImplementation: modularComplianceLogic.address,
   }
 
   console.log("\nRegistering implementations as Version 1.0.0...")
