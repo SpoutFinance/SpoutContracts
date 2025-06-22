@@ -8,5 +8,35 @@
     "Deployment owner": "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7",
     "Deployment address": "0xA37b1f4D5a8876184D62b9097335A4f4555b7c5f",
     "Contract Name": "IdFactory"
+  },
+  "TokenLogic": {
+    "Deployment owner": "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7",
+    "Deployment address": "0x5De6e7cAE4b30d4CbF744B6Dd78c6418F5750570",
+    "Contract Name": "Token"
+  },
+  "ModularComplianceLogic": {
+    "Deployment owner": "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7",
+    "Deployment address": "0xCAdaFeDf40140C8eBCa3A0E802dfC4dD72869c9F",
+    "Contract Name": "ModularCompliance"
+  },
+  "IdentityRegistryStorageLogic": {
+    "Deployment owner": "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7",
+    "Deployment address": "0xC9EbB17FC1f5101Db84EA345693194c520b411bb",
+    "Contract Name": "IdentityRegistryStorage"
+  },
+  "IdentityRegistryLogic": {
+    "Deployment owner": "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7",
+    "Deployment address": "0xa966bdf941ea2eccc8ADC453B977FFeE27bC2f55",
+    "Contract Name": "IdentityRegistry"
+  },
+  "ClaimTopicsRegistryLogic": {
+    "Deployment owner": "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7",
+    "Deployment address": "0x40edF44F3B7bD10ae4423A758f3b8c68a01efca1",
+    "Contract Name": "ClaimTopicsRegistry"
+  },
+  "TrustedIssuersRegistryLogic": {
+    "Deployment owner": "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7",
+    "Deployment address": "0xbeA4b5588d01CE6f400500A43815Be309A095287",
+    "Contract Name": "TrustedIssuersRegistry"
   }
 }

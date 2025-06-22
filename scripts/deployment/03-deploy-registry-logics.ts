@@ -1,11 +1,10 @@
 import { ethers } from "hardhat"
 
 async function main() {
+  console.log("Deploying logic contracts for all Registries...")
   const [deployer] = await ethers.getSigners()
   console.log("Deploying from:", deployer.address)
 
-  // Set a gas price override to prevent "replacement fee too low" errors on Base Sepolia
-  // The value is in Wei. 2 Gwei is a common, safe value.
   const feeData = await ethers.provider.getFeeData()
   const maxFeePerGas =
     feeData.maxFeePerGas ?? ethers.utils.parseUnits("5", "gwei")
@@ -26,17 +25,8 @@ async function main() {
     )} Gwei | Priority Fee: ${ethers.utils.formatUnits(
       overrides.maxPriorityFeePerGas!,
       "gwei"
-    )} Gwei`
+    )} Gwei\n`
   )
-  // --- 1. DEPLOY LOGIC CONTRACTS (The "Blueprints") ---
-  console.log("\nDeploying logic contract implementations...")
-
-  const Token = await ethers.getContractFactory(
-    "contracts/ERC3643/token/Token.sol:Token"
-  )
-  const tokenLogic = await Token.deploy(overrides)
-  await tokenLogic.deployed()
-  console.log("✅ Token logic deployed at:", tokenLogic.address)
 
   const IdentityRegistryStorage = await ethers.getContractFactory(
     "contracts/ERC3643/registry/implementation/IdentityRegistryStorage.sol:IdentityRegistryStorage"
@@ -58,16 +48,6 @@ async function main() {
   console.log(
     "✅ IdentityRegistry logic deployed at:",
     identityRegistryLogic.address
-  )
-
-  const ModularCompliance = await ethers.getContractFactory(
-    "contracts/ERC3643/compliance/modular/ModularCompliance.sol:ModularCompliance"
-  )
-  const modularComplianceLogic = await ModularCompliance.deploy(overrides)
-  await modularComplianceLogic.deployed()
-  console.log(
-    "✅ ModularCompliance logic deployed at:",
-    modularComplianceLogic.address
   )
 
   const ClaimTopicsRegistry = await ethers.getContractFactory(
@@ -92,41 +72,8 @@ async function main() {
     trustedIssuersRegistryLogic.address
   )
 
-  // --- 2. DEPLOY & CONFIGURE THE IMPLEMENTATION AUTHORITY ---
-  console.log("\nDeploying and configuring the TREXImplementationAuthority...")
-
-  const TREXImplementationAuthority = await ethers.getContractFactory(
-    "contracts/ERC3643/proxy/authority/TREXImplementationAuthority.sol:TREXImplementationAuthority"
-  )
-  const trexIA = await TREXImplementationAuthority.deploy(
-    true, // referenceStatus: this is the main IA
-    ethers.constants.AddressZero, // trexFactory: placeholder, will be set later
-    ethers.constants.AddressZero // iaFactory: placeholder for now
-  )
-  await trexIA.deployed()
-  console.log("✅ TREXImplementationAuthority deployed at:", trexIA.address)
-
-  // --- 3. REGISTER LOGIC CONTRACTS AS A VERSION IN THE IA ---
-  const version = { major: 1, minor: 0, patch: 0 }
-  const contracts = {
-    tokenImplementation: tokenLogic.address,
-    ctrImplementation: claimTopicsRegistryLogic.address,
-    irImplementation: identityRegistryLogic.address,
-    irsImplementation: identityRegistryStorageLogic.address,
-    tirImplementation: trustedIssuersRegistryLogic.address,
-    mcImplementation: modularComplianceLogic.address,
-  }
-
-  console.log("\nRegistering implementations as Version 1.0.0...")
-  const tx = await trexIA.addAndUseTREXVersion(version, contracts, overrides)
-  await tx.wait() // Wait for the transaction to be mined
-
   console.log(
-    "✅ All logic contracts registered in TREXImplementationAuthority."
-  )
-  console.log("\n🚀 T-REX Infrastructure deployment complete!")
-  console.log(
-    "You can now use the TREXImplementationAuthority address to deploy your factories."
+    "\nNOTE: Please copy these addresses for the final registration step."
   )
 }
 
