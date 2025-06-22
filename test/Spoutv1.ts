@@ -144,6 +144,79 @@ describe("Spout RWA Token", function () {
     })
   })
 
+  describe("RWA Transfer Validation", function () {
+    beforeEach(async function () {
+      const maturityDate = Math.floor(Date.now() / 1000) + 365 * 24 * 60 * 60
+      const couponRate = 500
+      await spoutToken.initializeRWA(maturityDate, couponRate, marketDataConsumer.address)
+    })
+
+    it("Should validate transfers correctly", async function () {
+      const isValid = await spoutToken.validateRWATransfer(addr1Address, addr2Address, ethers.utils.parseUnits("1000", 6))
+      expect(isValid).to.be.true
+    })
+
+    it("Should reject transfers after maturity", async function () {
+      // Fast forward past maturity
+      await ethers.provider.send("evm_increaseTime", [366 * 24 * 60 * 60])
+      await ethers.provider.send("evm_mine", [])
+      
+      const isValid = await spoutToken.validateRWATransfer(addr1Address, addr2Address, ethers.utils.parseUnits("1000", 6))
+      expect(isValid).to.be.false
+    })
+
+    it("Should reject transfers below minimum amount", async function () {
+      const isValid = await spoutToken.validateRWATransfer(addr1Address, addr2Address, 500) // Below 1000 minimum
+      expect(isValid).to.be.false
+    })
+  })
+
+  describe("Batch Operations", function () {
+    beforeEach(async function () {
+      const maturityDate = Math.floor(Date.now() / 1000) + 365 * 24 * 60 * 60
+      const couponRate = 500
+      await spoutToken.initializeRWA(maturityDate, couponRate, marketDataConsumer.address)
+
+      // Mint tokens to multiple addresses
+      await spoutToken.mint(addr1Address, ethers.utils.parseUnits("1000", 6))
+      await spoutToken.mint(addr2Address, ethers.utils.parseUnits("1000", 6))
+    })
+
+    it("Should perform batch interest release", async function () {
+      // Wait some time
+      await ethers.provider.send("evm_increaseTime", [30 * 24 * 60 * 60])
+      await ethers.provider.send("evm_mine", [])
+
+      const initialBalance1 = await spoutToken.balanceOf(addr1Address)
+      const initialBalance2 = await spoutToken.balanceOf(addr2Address)
+
+      await spoutToken.batchInterestRelease([addr1Address, addr2Address])
+
+      const finalBalance1 = await spoutToken.balanceOf(addr1Address)
+      const finalBalance2 = await spoutToken.balanceOf(addr2Address)
+
+      expect(finalBalance1).to.be.gt(initialBalance1)
+      expect(finalBalance2).to.be.gt(initialBalance2)
+    })
+  })
+
+  describe("Bond Information", function () {
+    beforeEach(async function () {
+      const maturityDate = Math.floor(Date.now() / 1000) + 365 * 24 * 60 * 60
+      const couponRate = 500
+      await spoutToken.initializeRWA(maturityDate, couponRate, marketDataConsumer.address)
+    })
+
+    it("Should return correct bond information", async function () {
+      const bondInfo = await spoutToken.getBondInfo()
+      
+      expect(bondInfo._maturityDate).to.be.gt(0)
+      expect(bondInfo._couponRate).to.equal(500)
+      expect(bondInfo._isMatured).to.be.false
+      expect(bondInfo._timeUntilMaturity).to.be.gt(0)
+    })
+  })
+
   describe("Market Data Integration", function () {
     it("Should allow setting market data consumer", async function () {
       const newConsumer = addr1Address
@@ -177,6 +250,12 @@ describe("Spout RWA Token", function () {
     it("Should only allow owner to set market data consumer", async function () {
       await expect(
         spoutToken.connect(addr1).setMarketDataConsumer(addr1Address)
+      ).to.be.revertedWith("Ownable: caller is not the owner")
+    })
+
+    it("Should only allow owner to perform batch operations", async function () {
+      await expect(
+        spoutToken.connect(addr1).batchInterestRelease([addr1Address])
       ).to.be.revertedWith("Ownable: caller is not the owner")
     })
   })

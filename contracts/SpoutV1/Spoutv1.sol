@@ -52,6 +52,14 @@ contract Spoutv1 is Token {
      * @param owner Address of the token holder
      */
     function interestRelease(address owner) external onlyOwner {
+        _interestRelease(owner);
+    }
+
+    /**
+     * @dev Internal function to calculate and release interest
+     * @param owner Address of the token holder
+     */
+    function _interestRelease(address owner) internal {
         require(owner != address(0), "Invalid owner address");
         require(balanceOf(owner) > 0, "No tokens to calculate interest for");
         
@@ -125,21 +133,64 @@ contract Spoutv1 is Token {
     }
 
     /**
-     * @dev Override transfer function to include RWA-specific logic
+     * @dev RWA-specific transfer validation
+     * This function can be called before transfer to add RWA-specific checks
+     * @param from The address of the sender
+     * @param to The address of the receiver
+     * @param amount The number of tokens to transfer
+     * @return True if transfer is allowed
      */
-    function transfer(address to, uint256 amount) public override returns (bool) {
+    function validateRWATransfer(
+        address from,
+        address to,
+        uint256 amount
+    ) public view returns (bool) {
         // Add any RWA-specific transfer restrictions here
         // For example, prevent transfers after maturity, etc.
         
-        return super.transfer(to, amount);
+        // Example: Prevent transfers after maturity
+        if (isMatured()) {
+            return false;
+        }
+        
+        // Example: Add minimum transfer amount
+        if (amount < 1000) { // Minimum 1000 tokens (with 6 decimals)
+            return false;
+        }
+        
+        return true;
     }
 
     /**
-     * @dev Override transferFrom function to include RWA-specific logic
+     * @dev Batch interest release for multiple holders
+     * @param owners Array of token holder addresses
      */
-    function transferFrom(address from, address to, uint256 amount) public override returns (bool) {
-        // Add any RWA-specific transfer restrictions here
-        
-        return super.transferFrom(from, to, amount);
+    function batchInterestRelease(address[] calldata owners) external onlyOwner {
+        for (uint256 i = 0; i < owners.length; i++) {
+            if (balanceOf(owners[i]) > 0) {
+                _interestRelease(owners[i]);
+            }
+        }
+    }
+
+    /**
+     * @dev Get bond information
+     * @return _maturityDate Maturity date
+     * @return _couponRate Coupon rate in basis points
+     * @return _isMatured Whether bond is matured
+     * @return _timeUntilMaturity Time until maturity
+     */
+    function getBondInfo() external view returns (
+        uint256 _maturityDate,
+        uint256 _couponRate,
+        bool _isMatured,
+        uint256 _timeUntilMaturity
+    ) {
+        return (
+            maturityDate,
+            couponRate,
+            isMatured(),
+            timeUntilMaturity()
+        );
     }
 }

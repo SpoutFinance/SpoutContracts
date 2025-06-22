@@ -33,4 +33,22 @@ interface ISpout {
     
     // Configuration functions
     function setMarketDataConsumer(address _newConsumer) external;
+    
+    // RWA-specific validation
+    function validateRWATransfer(
+        address from,
+        address to,
+        uint256 amount
+    ) external view returns (bool);
+    
+    // Batch operations
+    function batchInterestRelease(address[] calldata owners) external;
+    
+    // Bond information
+    function getBondInfo() external view returns (
+        uint256 _maturityDate,
+        uint256 _couponRate,
+        bool _isMatured,
+        uint256 _timeUntilMaturity
+    );
 }
