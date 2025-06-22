@@ -1,14 +1,29 @@
 import { ethers } from "hardhat"
 
 const main = async () => {
-  const TREXFactory = await ethers.getContractFactory("TREXFactory")
-  const trexFactory = await TREXFactory.deploy(
-    "0xBD456121D833e3d29Ef83c86f8dc57c97630878A", // Implementation Authority smart contract address
-    "0xA37b1f4D5a8876184D62b9097335A4f4555b7c5f" // ID Factory smart contract address
-  )
-  await trexFactory.deployed()
+  // --- 1. SET UP THE SCRIPT ---
+  const [deployer] = await ethers.getSigners()
+  console.log("Using account to deploy token suite:", deployer.address)
 
-  // TokenDetails struct holds all the necessary details for deploying a new T-REX token and its associated contracts
+  // Address of the TREXFactory you already deployed with script 07
+  const TREX_FACTORY_ADDRESS = "0x..." // 👈 PASTE YOUR DEPLOYED TREXFactory ADDRESS HERE
+
+  // Add gas overrides to prevent network errors
+  const feeData = await ethers.provider.getFeeData()
+  const overrides = {
+    maxFeePerGas: feeData.maxFeePerGas?.add(
+      ethers.utils.parseUnits("5", "gwei")
+    ),
+    maxPriorityFeePerGas: feeData.maxPriorityFeePerGas?.add(
+      ethers.utils.parseUnits("2", "gwei")
+    ),
+  }
+
+  console.log("\nAttaching to existing TREXFactory at:", TREX_FACTORY_ADDRESS)
+  const TREXFactory = await ethers.getContractFactory("TREXFactory")
+  const trexFactory = TREXFactory.attach(TREX_FACTORY_ADDRESS)
+
+  // --- 2. DEFINE YOUR TOKEN DETAILS ---
   const tokenDetails = {
     name: "Spout US Corporate Bond Token", // Name of the token
     symbol: "SUSC", // Symbol / ticker of the token
@@ -22,35 +37,25 @@ const main = async () => {
     irs: "0x0000000000000000000000000000000000000000", // Identity registry storage address - set to ZERO address to deploy a new storage
   }
 
-  // ClaimDetails struct holds all the necessary details regarding the claims and claim issuers
   const claimDetails = {
-    claimTopics: [
-      /* Claim topics required */
-      [1],
-    ],
-    issuers: [
-      "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7",
-      /* Trusted issuers addresses */
-      // Smart contract address that issues claims for the compliance Topics.
-    ],
-    issuerClaims: [
-      [1],
-      /* Claims that issuers are allowed to emit, by index corresponding to the issuers indexes */
-    ],
+    claimTopics: [1], // Corrected from [[1]] to [1]
+    issuers: ["0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7"],
+    issuerClaims: [[1]],
   }
 
-  // Deploy the full suite of T-REX contracts using CREATE2 opcode
-  // The _salt parameter ensures contracts are deployed at predetermined addresses
+  // --- 3. DEPLOY THE TOKEN SUITE ---
+  console.log("\nDeploying a new T-REX token suite...")
   const tx = await trexFactory.deployTREXSuite(
     "SpoutUSCorporateBondToken", // Salt string to generate unique addresses
     tokenDetails,
-    claimDetails
+    claimDetails,
+    overrides // Add overrides to the transaction
   )
 
-  // Wait for the transaction to be mined and get the receipt
+  // --- 4. PARSE THE RESULTS ---
+  console.log("Transaction sent! Waiting for confirmation...")
   const receipt = await tx.wait()
 
-  // Find the TREXSuiteDeployed event in the transaction receipt
   const suiteDeployedEvent = receipt.events?.find(
     (e) => e.event === "TREXSuiteDeployed"
   )
@@ -70,6 +75,7 @@ const main = async () => {
     console.error("Error: TREXSuiteDeployed event not found.")
   }
 }
+
 main()
   .then(() => process.exit(0))
   .catch((error) => {
