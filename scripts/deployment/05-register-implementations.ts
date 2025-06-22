@@ -17,7 +17,7 @@ async function main() {
   // --------------------------------------------------------------------------------------------
 
   console.log(
-    "Registering all logic contracts in the Implementation Authority..."
+    "Checking and registering logic contracts in the Implementation Authority..."
   )
   const [deployer] = await ethers.getSigners()
   console.log("Using account:", deployer.address)
@@ -50,9 +50,32 @@ async function main() {
     mcImplementation: COMPLIANCE_LOGIC_ADDRESS,
   }
 
-  console.log("\nRegistering implementations as Version 1.0.0...")
-  const tx = await trexIA.addAndUseTREXVersion(version, contracts, overrides)
-  await tx.wait()
+  // Try to register the version, catch if it already exists
+  console.log("\nAttempting to register implementations as Version 1.0.0...")
+  try {
+    const tx = await trexIA.addAndUseTREXVersion(version, contracts, overrides)
+    await tx.wait()
+    console.log("✅ Version 1.0.0 registered and set as active!")
+  } catch (error) {
+    if (error.reason === "version already exists") {
+      console.log("✅ Version 1.0.0 already exists!")
+      
+      // Check if current version is set to 1.0.0
+      const currentVersion = await trexIA.getCurrentVersion()
+      console.log("Current active version:", currentVersion)
+      
+      if (currentVersion.major === 1 && currentVersion.minor === 0 && currentVersion.patch === 0) {
+        console.log("✅ Version 1.0.0 is already the active version!")
+      } else {
+        console.log("Setting Version 1.0.0 as active version...")
+        const setTx = await trexIA.setTREXVersion(version, overrides)
+        await setTx.wait()
+        console.log("✅ Version 1.0.0 set as active version!")
+      }
+    } else {
+      throw error; // Re-throw if it's a different error
+    }
+  }
 
   console.log("\nVerifying the implementation address was set correctly...")
   const tokenImplementation = await trexIA.getTokenImplementation()

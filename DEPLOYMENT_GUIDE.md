@@ -9,6 +9,14 @@ This guide provides step-by-step instructions for deploying the complete Spout R
 3. **Private key** with sufficient ETH for deployment
 4. **Chainlink Functions subscription** (for market data)
 
+## Quick Status Check
+
+Before starting deployment, check if you already have components deployed:
+
+```bash
+npx hardhat run scripts/deployment/05-skip-if-already-registered.ts --network base-sepolia
+```
+
 ## Deployment Steps
 
 ### Step 1: Deploy T-REX Infrastructure
@@ -28,7 +36,7 @@ npx hardhat run scripts/deployment/03-deploy-registry-logics.ts --network base-s
 # 4. Deploy implementation authority
 npx hardhat run scripts/deployment/04-deploy-implementation-authority.ts --network base-sepolia
 
-# 5. Register implementations
+# 5. Register implementations (with error handling)
 npx hardhat run scripts/deployment/05-register-implementations.ts --network base-sepolia
 
 # 6. Verify implementation authority
@@ -54,6 +62,32 @@ npx hardhat run scripts/deployment/08-deploy-market-data-consumer.ts --network b
 # 10. Deploy complete Spout RWA token suite
 npx hardhat run scripts/deployment/09-deploy-spout-token-suite.ts --network base-sepolia
 ```
+
+## Troubleshooting Common Issues
+
+### Issue: "version already exists" Error
+
+If you encounter this error during step 5, it means the Implementation Authority already has version 1.0.0 registered. This is normal if you've run the deployment before.
+
+**Solution**: Use the status check script instead:
+
+```bash
+npx hardhat run scripts/deployment/05-skip-if-already-registered.ts --network base-sepolia
+```
+
+If the status shows all implementations are set, you can skip to step 7 (TREX Factory deployment).
+
+### Issue: Gas Estimation Failures
+
+If you encounter gas estimation failures:
+
+1. **Check your ETH balance** - Ensure you have sufficient ETH for deployment
+2. **Increase gas limits** - The scripts include dynamic gas adjustment
+3. **Check network congestion** - Base Sepolia can be congested during peak times
+
+### Issue: Contract Already Deployed
+
+If a contract is already deployed, the script will show the existing address. You can continue with the next step.
 
 ## Configuration Requirements
 
@@ -121,7 +155,11 @@ await trustedIssuersRegistry.addTrustedIssuer(issuerAddress, [1]);
 Run the comprehensive test suite:
 
 ```bash
+# Test Spout contracts
 npx hardhat test test/Spoutv1.ts
+
+# Test all contracts
+npx hardhat test
 ```
 
 ## Key Features
@@ -132,6 +170,8 @@ npx hardhat test test/Spoutv1.ts
 2. **Maturity Management**: Bond maturity date tracking
 3. **Market Data Integration**: Real-time price feeds via Chainlink
 4. **Compliance**: ERC-3643 compliant with KYC/AML support
+5. **Transfer Validation**: RWA-specific transfer restrictions
+6. **Batch Operations**: Efficient batch interest release
 
 ### Bond Parameters
 
@@ -147,15 +187,19 @@ npx hardhat test test/Spoutv1.ts
 3. **Reentrancy Protection**: Uses OpenZeppelin's ReentrancyGuard
 4. **Upgradeable**: Uses proxy pattern for future upgrades
 
-## Troubleshooting
+## Deployment Status Tracking
 
-### Common Issues
+Use these scripts to check deployment status:
 
-1. **"Insufficient funds"**: Ensure your wallet has enough ETH for deployment
-2. **"Gas estimation failed"**: Check contract parameters and network congestion
-3. **"Functions subscription not found"**: Verify your Chainlink Functions setup
+```bash
+# Check Implementation Authority status
+npx hardhat run scripts/deployment/05-skip-if-already-registered.ts --network base-sepolia
 
-### Verification
+# Check specific contract deployments
+npx hardhat run scripts/deployment/06-verify-ia.ts --network base-sepolia
+```
+
+## Verification
 
 Verify your contracts on BaseScan:
 
