@@ -3,8 +3,8 @@ import { ethers } from "hardhat"
 const main = async () => {
   const TREXFactory = await ethers.getContractFactory("TREXFactory")
   const trexFactory = await TREXFactory.deploy(
-    "0xBD456121D833e3d29Ef83c86f8dc57c97630878A", // Replace with actual address
-    "0xA37b1f4D5a8876184D62b9097335A4f4555b7c5f" // Replace with actual address
+    "0xBD456121D833e3d29Ef83c86f8dc57c97630878A", // Implementation Authority smart contract address
+    "0xA37b1f4D5a8876184D62b9097335A4f4555b7c5f" // ID Factory smart contract address
   )
   await trexFactory.deployed()
 
