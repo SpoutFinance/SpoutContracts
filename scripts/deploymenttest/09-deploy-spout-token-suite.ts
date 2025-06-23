@@ -165,19 +165,6 @@ async function main() {
   console.log("ClaimDetails:", JSON.stringify(claimDetails, null, 2))
 
   // Check for zero addresses in tokenDetails and claimDetails
-  function isZeroAddress(addr) {
-    return addr === "0x0000000000000000000000000000000000000000"
-  }
-  if (
-    isZeroAddress(tokenDetails.owner) ||
-    tokenDetails.irAgents.some(isZeroAddress) ||
-    tokenDetails.tokenAgents.some(isZeroAddress) ||
-    claimDetails.issuers.some(isZeroAddress)
-  ) {
-    console.warn(
-      "\n❌ Warning: One or more addresses in tokenDetails or claimDetails are zero addresses (except irs/ONCHAINID, which are allowed to be zero for new deployments). This may cause a revert."
-    )
-  }
 
   // Check for CREATE2 salt collision for token identity
   const tokenSalt = "Token" + salt
