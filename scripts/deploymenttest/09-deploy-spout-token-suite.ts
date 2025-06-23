@@ -4,10 +4,10 @@ async function main() {
   // --------------------------------------------------------------------------------------------
   //                                       PASTE YOUR ADDRESSES HERE
   // --------------------------------------------------------------------------------------------
-  const TREX_FACTORY_ADDRESS = "0x2Eac68d74c552E86b6EF6888b3E18817fAde1785" // The address from script 07
-  const IA_FACTORY_ADDRESS = "0xBD456121D833e3d29Ef83c86f8dc57c97630878A" // The address from script 07
-  const ID_FACTORY_ADDRESS = "0xA37b1f4D5a8876184D62b9097335A4f4555b7c5f"
-  const COMPLIANCE_LOGIC_ADDRESS = "0xCAdaFeDf40140C8eBCa3A0E802dfC4dD72869c9F"
+  const TREX_FACTORY_ADDRESS = "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318" // The address from script 07
+  const IA_FACTORY_ADDRESS = "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0" // The address from script 07
+  const ID_FACTORY_ADDRESS = "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9"
+  const COMPLIANCE_LOGIC_ADDRESS = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
   // --------------------------------------------------------------------------------------------
 
   console.log("Deploying Spout RWA Token Suite...")
@@ -20,12 +20,16 @@ async function main() {
   const maxPriorityFeePerGas =
     feeData.maxPriorityFeePerGas ?? ethers.utils.parseUnits("2", "gwei")
 
+  // Set a high manual gas limit to bypass estimation issues
+  const manualGasLimit = 10_000_000
   const overrides = {
     maxFeePerGas: maxFeePerGas.add(ethers.utils.parseUnits("5", "gwei")),
     maxPriorityFeePerGas: maxPriorityFeePerGas.add(
       ethers.utils.parseUnits("2", "gwei")
     ),
+    gasLimit: manualGasLimit,
   }
+  console.log("Using manual gas limit:", manualGasLimit)
 
   console.log(
     `\nUsing dynamic fees → Max Fee Per Gas: ${ethers.utils.formatUnits(
