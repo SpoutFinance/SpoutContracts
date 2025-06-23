@@ -4,8 +4,9 @@ async function main() {
   // --------------------------------------------------------------------------------------------
   //                                       PASTE YOUR ADDRESSES HERE
   // --------------------------------------------------------------------------------------------
-  const TREX_FACTORY_ADDRESS = "0xYourTREXFactoryAddress" // The address from script 07
-  const MARKET_DATA_CONSUMER_ADDRESS = "0xYourMarketDataConsumerAddress" // The address from script 08
+  const TREX_FACTORY_ADDRESS = "0x2Eac68d74c552E86b6EF6888b3E18817fAde1785" // The address from script 07
+  const IA_FACTORY_ADDRESS = "0xBD456121D833e3d29Ef83c86f8dc57c97630878A" // The address from script 07
+  const ID_FACTORY_ADDRESS = "0xA37b1f4D5a8876184D62b9097335A4f4555b7c5f" // The address from script 07
   // --------------------------------------------------------------------------------------------
 
   console.log("Deploying Spout RWA Token Suite...")
@@ -37,20 +38,108 @@ async function main() {
 
   // Get the TREX Factory contract
   const TREXFactory = await ethers.getContractFactory("TREXFactory")
+  const IDFactory = await ethers.getContractFactory("IdFactory")
   const trexFactory = TREXFactory.attach(TREX_FACTORY_ADDRESS)
+  const IAFactory = await ethers.getContractFactory(
+    "TREXImplementationAuthority"
+  )
+  const iaFactory = IAFactory.attach(IA_FACTORY_ADDRESS)
+  const idFactory = IDFactory.attach(ID_FACTORY_ADDRESS)
 
-  // RWA Token Details
+  const owner = await trexFactory.owner()
+  const idFactoryOwner = await idFactory.owner()
+  console.log("Factory owner:", owner)
+  console.log("ID Factory owner:", idFactoryOwner)
+  console.log("deployer address:", deployer.address)
+
+  // Check if the deployer is the owner of both contracts
+  const isDeployerFactoryOwner =
+    owner.toLowerCase() === deployer.address.toLowerCase()
+  const isDeployerIdFactoryOwner =
+    idFactoryOwner.toLowerCase() === deployer.address.toLowerCase()
+  console.log(
+    "Deployer is Factory owner:",
+    isDeployerFactoryOwner ? "✅" : "❌"
+  )
+  console.log(
+    "Deployer is ID Factory owner:",
+    isDeployerIdFactoryOwner ? "✅" : "❌"
+  )
+
+  // Check if the factory is registered as a token factory in the IdFactory
+  let isRegistered = false
+  try {
+    isRegistered = await idFactory.isTokenFactory(trexFactory.address)
+  } catch (err) {
+    console.error(
+      "Error checking if factory is registered in IdFactory (isTokenFactory):",
+      err
+    )
+  }
+  console.log(
+    "Factory registered in IdFactory (isTokenFactory):",
+    isRegistered ? "✅" : "❌"
+  )
+  if (!isRegistered) {
+    console.warn(
+      "\n❌ The TREXFactory is NOT registered as a token factory in the IdFactory."
+    )
+    console.warn(
+      "You must call idFactory.addTokenFactory(factoryAddress) as the IdFactory owner before deploying suites."
+    )
+  }
+
+  // Print all implementation addresses from the Implementation Authority to check if Implementation Authority is completely set
+  console.log("\nImplementation Authority completeness check:")
+  console.log(
+    "Token Implementation:         ",
+    await iaFactory.getTokenImplementation()
+  )
+  console.log(
+    "ClaimTopicsRegistry Impl:     ",
+    await iaFactory.getCTRImplementation()
+  )
+  console.log(
+    "IdentityRegistry Impl:        ",
+    await iaFactory.getIRImplementation()
+  )
+  console.log(
+    "IdentityRegistryStorage Impl: ",
+    await iaFactory.getIRSImplementation()
+  )
+  console.log(
+    "ModularCompliance Impl:       ",
+    await iaFactory.getMCImplementation()
+  )
+  console.log(
+    "TrustedIssuersRegistry Impl:  ",
+    await iaFactory.getTIRImplementation()
+  )
+
   const tokenDetails = {
+    // address of the owner of all contracts
+    owner: deployer.address,
+    // name of the token
     name: "Spout US Corporate Bond Token",
+    // symbol / ticker of the token
     symbol: "SUSC",
-    decimals: 6, // Standard for bond tokens
-    owner: deployer.address, // Owner of all contracts
-    irAgents: [deployer.address], // Identity registry agents
-    tokenAgents: [deployer.address], // Token agents
-    complianceModules: [], // No compliance modules for now
-    complianceSettings: [], // No compliance settings
-    ONCHAINID: ethers.constants.AddressZero, // Will be created automatically
-    irs: ethers.constants.AddressZero, // Deploy new storage
+    // decimals of the token (can be between 0 and 18)
+    decimals: 6,
+    // identity registry storage address
+    // set it to ZERO address if you want to deploy a new storage
+    // if an address is provided, please ensure that the factory is set as owner of the contract
+    irs: "0x0000000000000000000000000000000000000000",
+    // ONCHAINID of the token, useful when wanting to issue new tokens for different entities
+    ONCHAINID: "0x0000000000000000000000000000000000000000",
+    // list of agents of the identity registry (can be set to an AgentManager contract)
+    irAgents: [deployer.address],
+    // list of agents of the token
+    tokenAgents: [deployer.address],
+    // modules to bind to the compliance, indexes are corresponding to the settings callData indexes
+    // if a module doesn't require settings, it can be added at the end of the array, at index > settings.length
+    complianceModules: [],
+    // settings calls for compliance modules
+    complianceSettings: [],
   }
 
   // Claim Details for KYC/AML
@@ -67,8 +156,20 @@ async function main() {
   }
 
   console.log("Deploying Spout RWA Token Suite...")
+  try {
+    await trexFactory.callStatic.deployTREXSuite(
+      "SpoutUSCorporateBondToken", // Unique salt
+      tokenDetails,
+      claimDetails,
+      overrides
+    )
+    console.log("Call would succeed")
+  } catch (e) {
+    console.error("Call would revert:", e.error?.reason || e.reason || e)
+  }
+
   const tx = await trexFactory.deployTREXSuite(
-    "SpoutUSCorporateBondTokenV1", // Unique salt
+    "SpoutUSCorporateBondToken", // Unique salt
     tokenDetails,
     claimDetails,
     overrides
@@ -80,54 +181,24 @@ async function main() {
   )
 
   if (suiteDeployedEvent && suiteDeployedEvent.args) {
-    const tokenAddress = suiteDeployedEvent.args._token
-    console.log("✅ Spout RWA Token Suite Deployed!")
+    console.log("✅ T-REX Suite Deployed! Proxy addresses:")
     console.log("-----------------------------------------")
-    console.log("Token Proxy:                ", tokenAddress)
+    console.log("Token Proxy:                ", suiteDeployedEvent.args._token)
     console.log("Identity Registry Proxy:    ", suiteDeployedEvent.args._ir)
     console.log("Identity Registry Storage:  ", suiteDeployedEvent.args._irs)
     console.log("Trusted Issuers Registry:   ", suiteDeployedEvent.args._tir)
     console.log("Claim Topics Registry:      ", suiteDeployedEvent.args._ctr)
     console.log("Modular Compliance Proxy:   ", suiteDeployedEvent.args._mc)
+    console.log("Deployment Salt:            ", suiteDeployedEvent.args._salt)
     console.log("-----------------------------------------")
-
-    // Initialize the RWA token with bond parameters
-    console.log("\nInitializing RWA token parameters...")
-    const SpoutToken = await ethers.getContractFactory("Spoutv1")
-    const spoutToken = SpoutToken.attach(tokenAddress)
-
-    // Set bond parameters (example values)
-    const maturityDate = Math.floor(Date.now() / 1000) + (365 * 24 * 60 * 60) // 1 year from now
-    const couponRate = 500 // 5% annual coupon rate in basis points
-
-    const initTx = await spoutToken.initializeRWA(
-      maturityDate,
-      couponRate,
-      MARKET_DATA_CONSUMER_ADDRESS,
-      overrides
+    console.log("\nNext steps:")
+    console.log(
+      "1. Run 10-init-spout-token.ts to initialize and mint your token"
     )
-    await initTx.wait()
-
-    console.log("✅ RWA token initialized with:")
-    console.log("   Maturity Date:", new Date(maturityDate * 1000).toISOString())
-    console.log("   Coupon Rate: 5%")
-    console.log("   Market Data Consumer:", MARKET_DATA_CONSUMER_ADDRESS)
-
-    // Mint initial tokens to the owner
-    console.log("\nMinting initial tokens...")
-    const initialSupply = ethers.utils.parseUnits("1000000", 6) // 1M tokens with 6 decimals
-    const mintTx = await spoutToken.mint(deployer.address, initialSupply, overrides)
-    await mintTx.wait()
-
-    console.log("✅ Initial supply minted:", ethers.utils.formatUnits(initialSupply, 6), "SUSC")
-
-    console.log("\n🚀 Spout RWA Token deployment complete!")
-    console.log("Next steps:")
-    console.log("1. Set up Chainlink Functions subscription for market data")
-    console.log("2. Configure compliance rules if needed")
-    console.log("3. Add additional agents and issuers")
-    console.log("4. Test interest calculation and payment functions")
-
+    console.log("2. Set up Chainlink Functions subscription for market data")
+    console.log("3. Configure compliance rules if needed")
+    console.log("4. Add additional agents and issuers")
+    console.log("5. Test interest calculation and payment functions")
   } else {
     console.error("❌ Error: TREXSuiteDeployed event not found.")
   }
@@ -138,4 +209,4 @@ main()
   .catch((error) => {
     console.error("Deployment error:", error)
     process.exit(1)
-  }) 
+  })

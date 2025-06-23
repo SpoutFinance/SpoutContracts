@@ -38,5 +38,10 @@
     "Deployment owner": "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7",
     "Deployment address": "0xbeA4b5588d01CE6f400500A43815Be309A095287",
     "Contract Name": "TrustedIssuersRegistry"
+  },
+  "TREXFactory": {
+    "Deployment owner": "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7",
+    "Deployment address": "0x2Eac68d74c552E86b6EF6888b3E18817fAde1785",
+    "Contract Name": "TREXFactory"
   }
 }
