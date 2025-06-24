@@ -13,9 +13,13 @@ contract Spoutv1 is Token {
     uint256 public lastInterestPayment;
     uint256 public totalInterestPaid;
     address public marketDataConsumer;
-    
+
     // Bond-specific events
-    event InterestReleased(address indexed owner, uint256 amount, uint256 timestamp);
+    event InterestReleased(
+        address indexed owner,
+        uint256 amount,
+        uint256 timestamp
+    );
     event MaturityDateSet(uint256 maturityDate);
     event CouponRateSet(uint256 couponRate);
     event MarketDataConsumerSet(address indexed consumer);
@@ -33,15 +37,21 @@ contract Spoutv1 is Token {
         uint256 _couponRate,
         address _marketDataConsumer
     ) external onlyOwner {
-        require(_maturityDate > block.timestamp, "Maturity date must be in the future");
+        require(
+            _maturityDate > block.timestamp,
+            "Maturity date must be in the future"
+        );
         require(_couponRate <= 10000, "Coupon rate cannot exceed 100%");
-        require(_marketDataConsumer != address(0), "Invalid market data consumer");
-        
+        require(
+            _marketDataConsumer != address(0),
+            "Invalid market data consumer"
+        );
+
         maturityDate = _maturityDate;
         couponRate = _couponRate;
         marketDataConsumer = _marketDataConsumer;
         lastInterestPayment = block.timestamp;
-        
+
         emit MaturityDateSet(_maturityDate);
         emit CouponRateSet(_couponRate);
         emit MarketDataConsumerSet(_marketDataConsumer);
@@ -62,16 +72,16 @@ contract Spoutv1 is Token {
     function _interestRelease(address owner) internal {
         require(owner != address(0), "Invalid owner address");
         require(balanceOf(owner) > 0, "No tokens to calculate interest for");
-        
+
         uint256 interestAmount = calculateInterest(owner);
         require(interestAmount > 0, "No interest to release");
-        
+
         // Mint interest tokens to the owner
         mint(owner, interestAmount);
-        
+
         totalInterestPaid += interestAmount;
         lastInterestPayment = block.timestamp;
-        
+
         emit InterestReleased(owner, interestAmount, block.timestamp);
     }
 
@@ -83,11 +93,11 @@ contract Spoutv1 is Token {
     function calculateInterest(address owner) public view returns (uint256) {
         uint256 balance = balanceOf(owner);
         if (balance == 0) return 0;
-        
+
         uint256 timeSinceLastPayment = block.timestamp - lastInterestPayment;
         uint256 annualInterest = (balance * couponRate) / 10000; // Convert basis points to percentage
         uint256 interest = (annualInterest * timeSinceLastPayment) / 365 days;
-        
+
         return interest;
     }
 
@@ -114,10 +124,10 @@ contract Spoutv1 is Token {
      */
     function getYieldToMaturity() public view returns (uint256) {
         if (isMatured()) return 0;
-        
+
         uint256 timeToMaturity = timeUntilMaturity();
         uint256 annualizedTime = (timeToMaturity * 365 days) / (365 days);
-        
+
         // Simplified YTM calculation
         return (couponRate * annualizedTime) / (365 days);
     }
@@ -147,17 +157,18 @@ contract Spoutv1 is Token {
     ) public view returns (bool) {
         // Add any RWA-specific transfer restrictions here
         // For example, prevent transfers after maturity, etc.
-        
+
         // Example: Prevent transfers after maturity
         if (isMatured()) {
             return false;
         }
-        
+
         // Example: Add minimum transfer amount
-        if (amount < 1000) { // Minimum 1000 tokens (with 6 decimals)
+        if (amount < 1000) {
+            // Minimum 1000 tokens (with 6 decimals)
             return false;
         }
-        
+
         return true;
     }
 
@@ -165,7 +176,9 @@ contract Spoutv1 is Token {
      * @dev Batch interest release for multiple holders
      * @param owners Array of token holder addresses
      */
-    function batchInterestRelease(address[] calldata owners) external onlyOwner {
+    function batchInterestRelease(
+        address[] calldata owners
+    ) external onlyOwner {
         for (uint256 i = 0; i < owners.length; i++) {
             if (balanceOf(owners[i]) > 0) {
                 _interestRelease(owners[i]);
@@ -180,17 +193,16 @@ contract Spoutv1 is Token {
      * @return _isMatured Whether bond is matured
      * @return _timeUntilMaturity Time until maturity
      */
-    function getBondInfo() external view returns (
-        uint256 _maturityDate,
-        uint256 _couponRate,
-        bool _isMatured,
-        uint256 _timeUntilMaturity
-    ) {
-        return (
-            maturityDate,
-            couponRate,
-            isMatured(),
-            timeUntilMaturity()
-        );
+    function getBondInfo()
+        external
+        view
+        returns (
+            uint256 _maturityDate,
+            uint256 _couponRate,
+            bool _isMatured,
+            uint256 _timeUntilMaturity
+        )
+    {
+        return (maturityDate, couponRate, isMatured(), timeUntilMaturity());
     }
 }

@@ -6,7 +6,7 @@
   },
   "IdFactory": {
     "Deployment owner": "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7",
-    "Deployment address": "0xA37b1f4D5a8876184D62b9097335A4f4555b7c5f",
+    "Deployment address": "0xb04eAce0e3D886Bc514e84Ed42a7C43FC2183536",
     "Contract Name": "IdFactory"
   },
   "TokenLogic": {
@@ -43,5 +43,20 @@
     "Deployment owner": "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7",
     "Deployment address": "0x2Eac68d74c552E86b6EF6888b3E18817fAde1785",
     "Contract Name": "TREXFactory"
+  },
+  "IAFactory": {
+    "Deployment owner": "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7",
+    "Deployment address": "0x718421BB9a6Bb63D4A63295d59c12196c3e221Ed",
+    "Contract Name": "IAFactory"
+  },
+  "Identity": {
+    "Deployment owner": "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7",
+    "Deployment address": "0x2722d53513c08F01c2C30d31F1bf03620270B318",
+    "Contract Name": "Identity"
+  },
+  "OnchainIDImplementationAuthority": {
+    "Deployment owner": "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7",
+    "Deployment address": "0x7333b14f2cD1418e0358d0e2A698d590f995daab",
+    "Contract Name": "ImplementationAuthority"
   }
 }

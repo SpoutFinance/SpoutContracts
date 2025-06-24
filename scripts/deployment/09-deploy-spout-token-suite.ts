@@ -6,7 +6,7 @@ async function main() {
   // --------------------------------------------------------------------------------------------
   const TREX_FACTORY_ADDRESS = "0x2Eac68d74c552E86b6EF6888b3E18817fAde1785" // The address from script 07
   const IA_FACTORY_ADDRESS = "0xBD456121D833e3d29Ef83c86f8dc57c97630878A" // The address from script 07
-  const ID_FACTORY_ADDRESS = "0xA37b1f4D5a8876184D62b9097335A4f4555b7c5f"
+  const ID_FACTORY_ADDRESS = "0xb04eAce0e3D886Bc514e84Ed42a7C43FC2183536"
   const COMPLIANCE_LOGIC_ADDRESS = "0xCAdaFeDf40140C8eBCa3A0E802dfC4dD72869c9F"
   // --------------------------------------------------------------------------------------------
 
