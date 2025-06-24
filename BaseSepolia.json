@@ -58,5 +58,35 @@
     "Deployment owner": "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7",
     "Deployment address": "0x7333b14f2cD1418e0358d0e2A698d590f995daab",
     "Contract Name": "ImplementationAuthority"
+  },
+  "SpoutTokenProxy": {
+    "Deployment owner": "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7",
+    "Deployment address": "0xB5F83286a6F8590B4d01eC67c885252Ec5d0bdDB",
+    "Contract Name": "TokenProxy"
+  },
+  "SpoutIdentityRegistryProxy": {
+    "Deployment owner": "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7",
+    "Deployment address": "0x296D988cd8193D5c67a71A68E9Bdf533f53f943E",
+    "Contract Name": "IdentityRegistryProxy"
+  },
+  "SpoutIdentityRegistryStorageProxy": {
+    "Deployment owner": "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7",
+    "Deployment address": "0x0Bf4C41B70cb421F12090ED8737FF0E0aeD434df",
+    "Contract Name": "IdentityRegistryStorageProxy"
+  },
+  "SpoutTrustedIssuersRegistryProxy": {
+    "Deployment owner": "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7",
+    "Deployment address": "0x760634e1dd6bDd20D5e4f728d9cEaB4E3E74814A",
+    "Contract Name": "TrustedIssuersRegistryProxy"
+  },
+  "SpoutClaimTopicsRegistryProxy": {
+    "Deployment owner": "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7",
+    "Deployment address": "0x0F9619aBf14980787A10Be58D02421445BC59D68",
+    "Contract Name": "ClaimTopicsRegistryProxy"
+  },
+  "SpoutModularComplianceProxy": {
+    "Deployment owner": "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7",
+    "Deployment address": "0x6bc9b86FB1e7133766BD7768E25e23CDc17576Bf",
+    "Contract Name": "ModularComplianceProxy"
   }
 }

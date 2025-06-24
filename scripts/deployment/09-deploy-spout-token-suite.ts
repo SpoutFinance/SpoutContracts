@@ -118,7 +118,7 @@ async function main() {
   )
 
   // Print all deployment parameters
-  const salt = "SpoutUSCorporateBondToken" // Change this to a new, random value if needed
+  const salt = "SpoutSUSCCorporateBondToken" // Change this to a new, random value if needed
   console.log("Salt:", salt)
 
   // Build the TokenDetails struct for the suite
@@ -145,7 +145,7 @@ async function main() {
     tokenAgents: [deployer.address],
     // modules to bind to the compliance, indexes are corresponding to the settings callData indexes
     // if a module doesn't require settings, it can be added at the end of the array, at index > settings.length
-    complianceModules: [COMPLIANCE_LOGIC_ADDRESS],
+    complianceModules: [],
     // settings calls for compliance modules
     complianceSettings: [],
   }
@@ -159,21 +159,6 @@ async function main() {
 
   console.log("TokenDetails:", JSON.stringify(tokenDetails, null, 2))
   console.log("ClaimDetails:", JSON.stringify(claimDetails, null, 2))
-
-  // Check for zero addresses in tokenDetails and claimDetails
-  function isZeroAddress(addr) {
-    return addr === "0x0000000000000000000000000000000000000000"
-  }
-  if (
-    isZeroAddress(tokenDetails.owner) ||
-    tokenDetails.irAgents.some(isZeroAddress) ||
-    tokenDetails.tokenAgents.some(isZeroAddress) ||
-    claimDetails.issuers.some(isZeroAddress)
-  ) {
-    console.warn(
-      "\n❌ Warning: One or more addresses in tokenDetails or claimDetails are zero addresses (except irs/ONCHAINID, which are allowed to be zero for new deployments). This may cause a revert."
-    )
-  }
 
   // Check for CREATE2 salt collision for token identity
   const tokenSalt = "Token" + salt
@@ -227,60 +212,41 @@ async function main() {
     }
   }
 
-  // Warn if complianceModules is empty
-  if (tokenDetails.complianceModules.length === 0) {
-    console.warn(
-      "⚠️  Warning: complianceModules is empty. Some logic contracts may require at least one compliance module."
-    )
-  }
-
   console.log("Deploying Spout RWA Token Suite...")
-  try {
-    await trexFactory.callStatic.deployTREXSuite(
-      "SpoutUSCorporateBondToken", // Unique salt
-      tokenDetails,
-      claimDetails,
-      overrides
-    )
-    console.log("Call would succeed")
-  } catch (e) {
-    console.error("Call would revert:", e.error?.reason || e.reason || e)
-  }
 
   const tx = await trexFactory.deployTREXSuite(
-    "SpoutUSCorporateBondToken", // Unique salt
+    "SpoutSUSCCorporateBondToken", // Unique salt
     tokenDetails,
     claimDetails,
     overrides
   )
 
   const receipt = await tx.wait()
-  const suiteDeployedEvent = receipt.events?.find(
-    (e) => e.event === "TREXSuiteDeployed"
-  )
 
-  if (suiteDeployedEvent && suiteDeployedEvent.args) {
-    console.log("✅ T-REX Suite Deployed! Proxy addresses:")
-    console.log("-----------------------------------------")
-    console.log("Token Proxy:                ", suiteDeployedEvent.args._token)
-    console.log("Identity Registry Proxy:    ", suiteDeployedEvent.args._ir)
-    console.log("Identity Registry Storage:  ", suiteDeployedEvent.args._irs)
-    console.log("Trusted Issuers Registry:   ", suiteDeployedEvent.args._tir)
-    console.log("Claim Topics Registry:      ", suiteDeployedEvent.args._ctr)
-    console.log("Modular Compliance Proxy:   ", suiteDeployedEvent.args._mc)
-    console.log("Deployment Salt:            ", suiteDeployedEvent.args._salt)
-    console.log("-----------------------------------------")
-    console.log("\nNext steps:")
-    console.log(
-      "1. Run 10-init-spout-token.ts to initialize and mint your token"
-    )
-    console.log("2. Set up Chainlink Functions subscription for market data")
-    console.log("3. Configure compliance rules if needed")
-    console.log("4. Add additional agents and issuers")
-    console.log("5. Test interest calculation and payment functions")
+  // Find the TREXSuiteDeployed event in the logs
+  const event = receipt.events?.find((e) => e.event === "TREXSuiteDeployed")
+  if (event) {
+    const [tokenProxy, irProxy, irsProxy, tirProxy, ctrProxy, mcProxy, salt] =
+      event.args
+    console.log("Token Proxy:                ", tokenProxy)
+    console.log("Identity Registry Proxy:    ", irProxy)
+    console.log("Identity Registry Storage:  ", irsProxy)
+    console.log("Trusted Issuers Registry:   ", tirProxy)
+    console.log("Claim Topics Registry:      ", ctrProxy)
+    console.log("Modular Compliance Proxy:   ", mcProxy)
+    console.log("Deployment Salt:            ", salt)
   } else {
-    console.error("❌ Error: TREXSuiteDeployed event not found.")
+    console.log(
+      "Could not find TREXSuiteDeployed event in transaction receipt."
+    )
   }
+
+  console.log("\nNext steps:")
+  console.log("1. Run 10-init-spout-token.ts to initialize and mint your token")
+  console.log("2. Set up Chainlink Functions subscription for market data")
+  console.log("3. Configure compliance rules if needed")
+  console.log("4. Add additional agents and issuers")
+  console.log("5. Test interest calculation and payment functions")
 }
 
 main()
