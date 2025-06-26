@@ -42,7 +42,10 @@ contract Gateway is Ownable {
      *  @dev Constructor for the ONCHAINID Factory Gateway.
      *  @param idFactoryAddress the address of the factory to operate (the Gateway must be owner of the Factory).
      */
-    constructor(address idFactoryAddress, address[] memory signersToApprove) Ownable() {
+    constructor(
+        address idFactoryAddress,
+        address[] memory signersToApprove
+    ) Ownable() {
         if (idFactoryAddress == address(0)) {
             revert ZeroAddress();
         }
@@ -187,19 +190,30 @@ contract Gateway is Ownable {
             revert RevokedSignature(signature);
         }
 
-        return idFactory.createIdentityWithManagementKeys(identityOwner, salt, managementKeys);
+        return
+            idFactory.createIdentityWithManagementKeys(
+                identityOwner,
+                salt,
+                managementKeys
+            );
     }
 
     /**
      *  @dev Deploy an ONCHAINID using a factory using the identityOwner address as salt.
      *  @param identityOwner the address to set as a management key.
      */
-    function deployIdentityForWallet(address identityOwner) external returns (address) {
+    function deployIdentityForWallet(
+        address identityOwner
+    ) external returns (address) {
         if (identityOwner == address(0)) {
             revert ZeroAddress();
         }
 
-        return idFactory.createIdentity(identityOwner, Strings.toHexString(identityOwner));
+        return
+            idFactory.createIdentity(
+                identityOwner,
+                Strings.toHexString(identityOwner)
+            );
     }
 
     /**
@@ -243,7 +257,7 @@ contract Gateway is Ownable {
      *  @param data the data to call on the factory.
      */
     function callFactory(bytes memory data) external onlyOwner {
-        (bool success,) = address(idFactory).call(data);
+        (bool success, ) = address(idFactory).call(data);
         require(success, "Gateway: call to factory failed");
     }
 }

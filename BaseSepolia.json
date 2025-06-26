@@ -88,5 +88,10 @@
     "Deployment owner": "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7",
     "Deployment address": "0x6bc9b86FB1e7133766BD7768E25e23CDc17576Bf",
     "Contract Name": "ModularComplianceProxy"
+  },
+  "Gateway": {
+    "Deployment owner": "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7",
+    "Deployment address": "0xf04430Ffe6da40FE233c50909A9ebEA43dc8FDaB",
+    "Contract Name": "Gateway"
   }
 }
