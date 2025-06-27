@@ -58,7 +58,7 @@ contract FunctionAssetConsumer is FunctionsClient {
     function getAssetPrice(
         string memory asset,
         uint64 subscriptionId
-    ) external returns (bytes32 requestId) {
+    ) public returns (bytes32 requestId) {
         FunctionsRequest.Request memory req;
         req.initializeRequestForInlineJavaScript(SOURCE);
 
