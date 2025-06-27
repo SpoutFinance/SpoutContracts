@@ -4,11 +4,7 @@ pragma solidity ^0.8.17;
 
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {FunctionAssetConsumer} from "../Marketdata/FunctionAssetConsumer.sol";
-
-// Interface for callback receiver
-interface IOrdersReceiver {
-    function fulfillBuyOrder(bytes32 requestId, uint256 price) external;
-}
+import {IOrdersReceiver} from "../interface/IOrdersReceiver.sol";
 
 contract Orders is Ownable, FunctionAssetConsumer, IOrdersReceiver {
     event BuyOrderCreated(
@@ -21,13 +17,22 @@ contract Orders is Ownable, FunctionAssetConsumer, IOrdersReceiver {
     event SellOrderCreated(address token, uint256 amount, uint256 price);
 
     // Store pending orders
-    struct PendingOrder {
+    struct PendingBuyOrder {
         address user;
         address token;
         uint256 usdcAmount;
         address orderAddr; // callback receiver
     }
-    mapping(bytes32 => PendingOrder) public pendingOrders;
+    mapping(bytes32 => PendingBuyOrder) public pendingBuyOrders;
+
+    // Store pending sell orders
+    struct PendingSellOrder {
+        address user;
+        address token;
+        uint256 tokenAmount;
+        address orderAddr; // callback receiver
+    }
+    mapping(bytes32 => PendingSellOrder) public pendingSellOrders;
 
     // Buy asset with USDC, requesting price from oracle
     // orderAddr is the address to receive the callback (usually msg.sender, or another contract)
@@ -45,7 +50,7 @@ contract Orders is Ownable, FunctionAssetConsumer, IOrdersReceiver {
         bytes32 requestId = getAssetPrice(asset, subscriptionId);
 
         // Store pending order with callback address
-        pendingOrders[requestId] = PendingOrder(
+        pendingBuyOrders[requestId] = PendingBuyOrder(
             msg.sender,
             token,
             usdcAmount,
@@ -53,9 +58,33 @@ contract Orders is Ownable, FunctionAssetConsumer, IOrdersReceiver {
         );
     }
 
+    // Sell asset for USDC, requesting price from oracle
+    // orderAddr is the address to receive the callback (usually msg.sender, or another contract)
+    function sellAsset(
+        string memory asset,
+        address token,
+        uint256 tokenAmount,
+        uint64 subscriptionId,
+        address orderAddr
+    ) public {
+        // TODO: Transfer tokens from user to contract (add checks/approvals as needed)
+        // IERC20(token).transferFrom(msg.sender, address(this), tokenAmount);
+
+        // Request price from inherited FunctionAssetConsumer
+        bytes32 requestId = getAssetPrice(asset, subscriptionId);
+
+        // Store pending sell order with callback address
+        pendingSellOrders[requestId] = PendingSellOrder(
+            msg.sender,
+            token,
+            tokenAmount,
+            orderAddr
+        );
+    }
+
     // This function is called by the contract itself or by the callback receiver
     function fulfillBuyOrder(bytes32 requestId, uint256 price) public override {
-        PendingOrder memory order = pendingOrders[requestId];
+        PendingBuyOrder memory order = pendingBuyOrders[requestId];
         require(order.user != address(0), "Order not found");
         require(price > 0, "Price not fulfilled yet");
 
@@ -72,10 +101,26 @@ contract Orders is Ownable, FunctionAssetConsumer, IOrdersReceiver {
         );
 
         // Clean up
-        delete pendingOrders[requestId];
+        delete pendingBuyOrders[requestId];
     }
 
-    // Override fulfillRequest to call the callback receiver
+    // This function is called by the contract itself or by the callback receiver for sell orders
+    function fulfillSellOrder(bytes32 requestId, uint256 price) public {
+        PendingSellOrder memory order = pendingSellOrders[requestId];
+        require(order.user != address(0), "Sell order not found");
+        require(price > 0, "Price not fulfilled yet");
+
+        // Calculate USDC amount (adjust decimals as needed)
+        uint256 usdcAmount = (order.tokenAmount * price) / 1e18;
+
+        // Emit event
+        emit SellOrderCreated(order.token, order.tokenAmount, price);
+
+        // Clean up
+        delete pendingSellOrders[requestId];
+    }
+
+    // Override fulfillRequest to call the callback receiver for buy or sell orders
     function fulfillRequest(
         bytes32 requestId,
         bytes memory response,
@@ -90,10 +135,15 @@ contract Orders is Ownable, FunctionAssetConsumer, IOrdersReceiver {
         uint256 price = abi.decode(response, (uint256));
         assetToPrice[asset] = price;
         emit Response(requestId, asset, price, response, err);
-        // Call the callback receiver if set
-        PendingOrder memory order = pendingOrders[requestId];
-        if (order.orderAddr != address(0)) {
-            IOrdersReceiver(order.orderAddr).fulfillBuyOrder(requestId, price);
+        // Only emit events for buy or sell orders stored in this contract
+        PendingBuyOrder memory buyOrder = pendingBuyOrders[requestId];
+        if (buyOrder.orderAddr != address(0)) {
+            fulfillBuyOrder(requestId, price);
+        } else {
+            PendingSellOrder memory sellOrder = pendingSellOrders[requestId];
+            if (sellOrder.orderAddr != address(0)) {
+                fulfillSellOrder(requestId, price);
+            }
         }
     }
 }
