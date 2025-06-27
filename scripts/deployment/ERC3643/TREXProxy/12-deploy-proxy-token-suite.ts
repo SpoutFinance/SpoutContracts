@@ -4,9 +4,9 @@ async function main() {
   // --------------------------------------------------------------------------------------------
   //                                       PASTE YOUR ADDRESSES HERE
   // --------------------------------------------------------------------------------------------
-  const TREX_FACTORY_ADDRESS = "0x2Eac68d74c552E86b6EF6888b3E18817fAde1785" // The address from script 07
-  const IA_FACTORY_ADDRESS = "0xBD456121D833e3d29Ef83c86f8dc57c97630878A" // The address from script 07
-  const ID_FACTORY_ADDRESS = "0xb04eAce0e3D886Bc514e84Ed42a7C43FC2183536"
+  const TREX_FACTORY_ADDRESS = "0x2Eac68d74c552E86b6EF6888b3E18817fAde1785" // The address from TREXProxy/07-deploy-trex-factory.ts
+  const TREX_IA_ADDRESS = "0xBD456121D833e3d29Ef83c86f8dc57c97630878A" // The address from logic/04-deploy-implementation-authority.ts
+  const ID_FACTORY_ADDRESS = "0xb04eAce0e3D886Bc514e84Ed42a7C43FC2183536" // The address from OnchainID/04-deploy-id-factory.ts
   const COMPLIANCE_LOGIC_ADDRESS = "0xCAdaFeDf40140C8eBCa3A0E802dfC4dD72869c9F"
   // --------------------------------------------------------------------------------------------
 
@@ -41,10 +41,9 @@ async function main() {
   const TREXFactory = await ethers.getContractFactory("TREXFactory")
   const IDFactory = await ethers.getContractFactory("IdFactory")
   const trexFactory = TREXFactory.attach(TREX_FACTORY_ADDRESS)
-  const IAFactory = await ethers.getContractFactory(
-    "TREXImplementationAuthority"
-  )
-  const iaFactory = IAFactory.attach(IA_FACTORY_ADDRESS)
+  const TREXia = await ethers.getContractFactory("TREXImplementationAuthority")
+
+  const trexIA = TREXia.attach(TREX_IA_ADDRESS)
   const idFactory = IDFactory.attach(ID_FACTORY_ADDRESS)
 
   const owner = await trexFactory.owner()
@@ -94,27 +93,27 @@ async function main() {
   console.log("\nImplementation Authority completeness check:")
   console.log(
     "Token Implementation:         ",
-    await iaFactory.getTokenImplementation()
+    await trexIA.getTokenImplementation()
   )
   console.log(
     "ClaimTopicsRegistry Impl:     ",
-    await iaFactory.getCTRImplementation()
+    await trexIA.getCTRImplementation()
   )
   console.log(
     "IdentityRegistry Impl:        ",
-    await iaFactory.getIRImplementation()
+    await trexIA.getIRImplementation()
   )
   console.log(
     "IdentityRegistryStorage Impl: ",
-    await iaFactory.getIRSImplementation()
+    await trexIA.getIRSImplementation()
   )
   console.log(
     "ModularCompliance Impl:       ",
-    await iaFactory.getMCImplementation()
+    await trexIA.getMCImplementation()
   )
   console.log(
     "TrustedIssuersRegistry Impl:  ",
-    await iaFactory.getTIRImplementation()
+    await trexIA.getTIRImplementation()
   )
 
   // Print all deployment parameters
@@ -180,12 +179,12 @@ async function main() {
 
   // Print bytecode at each logic contract address to confirm they are deployed and not proxies/empty
   const logicAddresses = [
-    await iaFactory.getTokenImplementation(),
-    await iaFactory.getCTRImplementation(),
-    await iaFactory.getIRImplementation(),
-    await iaFactory.getIRSImplementation(),
-    await iaFactory.getMCImplementation(),
-    await iaFactory.getTIRImplementation(),
+    await trexIA.getTokenImplementation(),
+    await trexIA.getCTRImplementation(),
+    await trexIA.getIRImplementation(),
+    await trexIA.getIRSImplementation(),
+    await trexIA.getMCImplementation(),
+    await trexIA.getTIRImplementation(),
   ]
   const logicNames = [
     "TokenImplementation",
