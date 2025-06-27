@@ -1,7 +1,6 @@
 require("@nomicfoundation/hardhat-toolbox")
 const { vars } = require("hardhat/config")
 
-
 module.exports = {
   solidity: {
     compilers: [
@@ -24,6 +23,9 @@ module.exports = {
         },
       },
     ],
+    importAliases: {
+      "@": "./contracts/SpoutV1",
+    },
   },
   networks: {
     pharos: {

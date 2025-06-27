@@ -4,8 +4,8 @@ async function main() {
   // --------------------------------------------------------------------------------------------
   //                                       PASTE YOUR ADDRESSES HERE
   // --------------------------------------------------------------------------------------------
-  const TREX_IA_ADDRESS = "0xBD456121D833e3d29Ef83c86f8dc57c97630878A" // The address from script 04
-  const ID_FACTORY_ADDRESS = "0xA37b1f4D5a8876184D62b9097335A4f4555b7c5f" // The address from script 02b
+  const TREX_IA_ADDRESS = "0xBD456121D833e3d29Ef83c86f8dc57c97630878A" // The address from logic/04-deploy-implementation-authority.ts
+  const ID_FACTORY_ADDRESS = "0xb04eAce0e3D886Bc514e84Ed42a7C43FC2183536" // The address from OnchainID/04-deploy-id-factory.ts
   // --------------------------------------------------------------------------------------------
 
   console.log("Deploying the TREXFactory...")
