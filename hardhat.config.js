@@ -23,6 +23,9 @@ module.exports = {
         },
       },
     ],
+    importAliases: {
+      "@": "./contracts/SpoutV1",
+    },
   },
   networks: {
     pharos: {
