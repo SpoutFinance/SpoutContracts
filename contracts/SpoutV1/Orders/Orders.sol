@@ -21,7 +21,7 @@ contract Orders is Ownable, FunctionAssetConsumer, IOrdersReceiver {
         address user;
         address token;
         uint256 usdcAmount;
-        address orderAddr; // callback receiver
+        address orderAddr;
     }
     mapping(bytes32 => PendingBuyOrder) public pendingBuyOrders;
 
@@ -30,12 +30,12 @@ contract Orders is Ownable, FunctionAssetConsumer, IOrdersReceiver {
         address user;
         address token;
         uint256 tokenAmount;
-        address orderAddr; // callback receiver
+        address orderAddr;
     }
     mapping(bytes32 => PendingSellOrder) public pendingSellOrders;
 
     // Buy asset with USDC, requesting price from oracle
-    // orderAddr is the address to receive the callback (usually msg.sender, or another contract)
+    // orderAddr is the address to receive the callback
     function buyAsset(
         string memory asset,
         address token,
@@ -43,9 +43,6 @@ contract Orders is Ownable, FunctionAssetConsumer, IOrdersReceiver {
         uint64 subscriptionId,
         address orderAddr
     ) public {
-        // TODO: Transfer USDC from user to contract (add checks/approvals as needed)
-        // IERC20(token).transferFrom(msg.sender, address(this), usdcAmount);
-
         // Request price from inherited FunctionAssetConsumer
         bytes32 requestId = getAssetPrice(asset, subscriptionId);
 
@@ -67,13 +64,9 @@ contract Orders is Ownable, FunctionAssetConsumer, IOrdersReceiver {
         uint64 subscriptionId,
         address orderAddr
     ) public {
-        // TODO: Transfer tokens from user to contract (add checks/approvals as needed)
-        // IERC20(token).transferFrom(msg.sender, address(this), tokenAmount);
-
         // Request price from inherited FunctionAssetConsumer
         bytes32 requestId = getAssetPrice(asset, subscriptionId);
 
-        // Store pending sell order with callback address
         pendingSellOrders[requestId] = PendingSellOrder(
             msg.sender,
             token,
@@ -82,7 +75,7 @@ contract Orders is Ownable, FunctionAssetConsumer, IOrdersReceiver {
         );
     }
 
-    // This function is called by the contract itself or by the callback receiver
+    // This function is called by the contract itself as a callback
     function fulfillBuyOrder(bytes32 requestId, uint256 price) public override {
         PendingBuyOrder memory order = pendingBuyOrders[requestId];
         require(order.user != address(0), "Order not found");
@@ -104,7 +97,7 @@ contract Orders is Ownable, FunctionAssetConsumer, IOrdersReceiver {
         delete pendingBuyOrders[requestId];
     }
 
-    // This function is called by the contract itself or by the callback receiver for sell orders
+    // This function is called by the contract itself
     function fulfillSellOrder(bytes32 requestId, uint256 price) public {
         PendingSellOrder memory order = pendingSellOrders[requestId];
         require(order.user != address(0), "Sell order not found");
@@ -120,7 +113,7 @@ contract Orders is Ownable, FunctionAssetConsumer, IOrdersReceiver {
         delete pendingSellOrders[requestId];
     }
 
-    // Override fulfillRequest to call the callback receiver for buy or sell orders
+    // Override fulfillRequest to call the callback for buy or sell orders
     function fulfillRequest(
         bytes32 requestId,
         bytes memory response,
