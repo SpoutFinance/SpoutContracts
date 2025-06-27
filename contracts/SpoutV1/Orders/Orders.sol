@@ -17,13 +17,13 @@ contract Orders is Ownable, FunctionAssetConsumer, IOrdersReceiver {
     event SellOrderCreated(address token, uint256 amount, uint256 price);
 
     // Store pending orders
-    struct PendingOrder {
+    struct PendingBuyOrder {
         address user;
         address token;
         uint256 usdcAmount;
         address orderAddr; // callback receiver
     }
-    mapping(bytes32 => PendingOrder) public pendingOrders;
+    mapping(bytes32 => PendingBuyOrder) public pendingBuyOrders;
 
     // Store pending sell orders
     struct PendingSellOrder {
@@ -50,7 +50,7 @@ contract Orders is Ownable, FunctionAssetConsumer, IOrdersReceiver {
         bytes32 requestId = getAssetPrice(asset, subscriptionId);
 
         // Store pending order with callback address
-        pendingOrders[requestId] = PendingOrder(
+        pendingBuyOrders[requestId] = PendingBuyOrder(
             msg.sender,
             token,
             usdcAmount,
@@ -84,7 +84,7 @@ contract Orders is Ownable, FunctionAssetConsumer, IOrdersReceiver {
 
     // This function is called by the contract itself or by the callback receiver
     function fulfillBuyOrder(bytes32 requestId, uint256 price) public override {
-        PendingOrder memory order = pendingOrders[requestId];
+        PendingBuyOrder memory order = pendingBuyOrders[requestId];
         require(order.user != address(0), "Order not found");
         require(price > 0, "Price not fulfilled yet");
 
@@ -101,7 +101,7 @@ contract Orders is Ownable, FunctionAssetConsumer, IOrdersReceiver {
         );
 
         // Clean up
-        delete pendingOrders[requestId];
+        delete pendingBuyOrders[requestId];
     }
 
     // This function is called by the contract itself or by the callback receiver for sell orders
@@ -135,17 +135,13 @@ contract Orders is Ownable, FunctionAssetConsumer, IOrdersReceiver {
         uint256 price = abi.decode(response, (uint256));
         assetToPrice[asset] = price;
         emit Response(requestId, asset, price, response, err);
-        // Call the callback receiver if set for buy or sell order
-        PendingOrder memory buyOrder = pendingOrders[requestId];
+        // Only emit events for buy or sell orders stored in this contract
+        PendingBuyOrder memory buyOrder = pendingBuyOrders[requestId];
         if (buyOrder.orderAddr != address(0)) {
-            IOrdersReceiver(buyOrder.orderAddr).fulfillBuyOrder(
-                requestId,
-                price
-            );
+            fulfillBuyOrder(requestId, price);
         } else {
             PendingSellOrder memory sellOrder = pendingSellOrders[requestId];
             if (sellOrder.orderAddr != address(0)) {
-                // Call fulfillSellOrder directly (no interface needed since it's in this contract)
                 fulfillSellOrder(requestId, price);
             }
         }
