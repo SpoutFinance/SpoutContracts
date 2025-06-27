@@ -3,9 +3,14 @@
 pragma solidity ^0.8.17;
 
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {IFunctionAssetConsumer} from "../Marketdata/IFunctionAssetConsumer.sol";
+import {FunctionAssetConsumer} from "../Marketdata/FunctionAssetConsumer.sol";
 
-contract Orders is Ownable {
+// Interface for callback receiver
+interface IOrdersReceiver {
+    function fulfillBuyOrder(bytes32 requestId, uint256 price) external;
+}
+
+contract Orders is Ownable, FunctionAssetConsumer, IOrdersReceiver {
     event BuyOrderCreated(
         address indexed user,
         address token,
@@ -15,46 +20,44 @@ contract Orders is Ownable {
     );
     event SellOrderCreated(address token, uint256 amount, uint256 price);
 
-    IFunctionAssetConsumer public oracle;
-
     // Store pending orders
     struct PendingOrder {
         address user;
         address token;
         uint256 usdcAmount;
+        address orderAddr; // callback receiver
     }
     mapping(bytes32 => PendingOrder) public pendingOrders;
 
-    constructor(address oracleAddress) {
-        oracle = IFunctionAssetConsumer(oracleAddress);
-    }
-
-    function createOrder(address token, uint256 amount, uint256 price) public {
-        // TODO: Implement order creation
-    }
-
     // Buy asset with USDC, requesting price from oracle
+    // orderAddr is the address to receive the callback (usually msg.sender, or another contract)
     function buyAsset(
         string memory asset,
         address token,
         uint256 usdcAmount,
-        uint64 subscriptionId
+        uint64 subscriptionId,
+        address orderAddr
     ) public {
         // TODO: Transfer USDC from user to contract (add checks/approvals as needed)
         // IERC20(token).transferFrom(msg.sender, address(this), usdcAmount);
 
-        // Request price from oracle
-        bytes32 requestId = oracle.getAssetPrice(asset, subscriptionId);
+        // Request price from inherited FunctionAssetConsumer
+        bytes32 requestId = getAssetPrice(asset, subscriptionId);
 
-        // Store pending order
-        pendingOrders[requestId] = PendingOrder(msg.sender, token, usdcAmount);
+        // Store pending order with callback address
+        pendingOrders[requestId] = PendingOrder(
+            msg.sender,
+            token,
+            usdcAmount,
+            orderAddr
+        );
     }
 
-    // Fulfill buy order after oracle returns price
-    function fulfillBuyOrder(bytes32 requestId, uint256 price) external {
-        require(msg.sender == address(oracle), "Only oracle can fulfill");
+    // This function is called by the contract itself or by the callback receiver
+    function fulfillBuyOrder(bytes32 requestId, uint256 price) public override {
         PendingOrder memory order = pendingOrders[requestId];
         require(order.user != address(0), "Order not found");
+        require(price > 0, "Price not fulfilled yet");
 
         // Calculate asset amount (adjust decimals as needed)
         uint256 assetAmount = (order.usdcAmount * 1e18) / price;
@@ -70,5 +73,27 @@ contract Orders is Ownable {
 
         // Clean up
         delete pendingOrders[requestId];
+    }
+
+    // Override fulfillRequest to call the callback receiver
+    function fulfillRequest(
+        bytes32 requestId,
+        bytes memory response,
+        bytes memory err
+    ) internal override {
+        string memory asset = requestIdToAsset[requestId];
+        if (bytes(asset).length == 0) {
+            revert UnexpectedRequestID(requestId);
+        }
+        requestIdToResponse[requestId] = response;
+        requestIdToError[requestId] = err;
+        uint256 price = abi.decode(response, (uint256));
+        assetToPrice[asset] = price;
+        emit Response(requestId, asset, price, response, err);
+        // Call the callback receiver if set
+        PendingOrder memory order = pendingOrders[requestId];
+        if (order.orderAddr != address(0)) {
+            IOrdersReceiver(order.orderAddr).fulfillBuyOrder(requestId, price);
+        }
     }
 }
