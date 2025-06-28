@@ -12,17 +12,17 @@ async function main() {
   )
 
   // Contract addresses (properly checksummed)
-  const ordersAddress = "0xf160191ce959cb26595c8e6eaebe20707c2be7d7"
+  const ordersAddress = "0xF122C14a71cD1C058e4C663A3a4feB2fC216208f"
   const tokenAddress = "0xB5F83286a6F8590B4d01eC67c885252Ec5d0bdDB" // Properly checksummed
-  const orderRecipient = "0x369B11fb8C65d02b3BdD68b922e8f0D6FDB58717" // Properly checksummed
+  const orderRecipient = "0x39e5A008A0f182398d76c422E551a1348675Dc1b" // Properly checksummed
 
   // Get the Orders contract
   const Orders = await ethers.getContractFactory("Orders")
   const orders = Orders.attach(ordersAddress)
 
   // Parameters
-  const asset = "lqd"
-  const ticker = "lqd"
+  const asset = "AAPL"
+  const ticker = "AAPL"
   const usdcAmount = 100
   const subscriptionId = 379
 
