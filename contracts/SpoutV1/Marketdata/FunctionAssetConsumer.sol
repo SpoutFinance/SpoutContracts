@@ -58,7 +58,7 @@ contract FunctionAssetConsumer is FunctionsClient {
     function getAssetPrice(
         string memory asset,
         uint64 subscriptionId
-    ) public returns (bytes32 requestId) {
+    ) public virtual returns (bytes32 requestId) {
         FunctionsRequest.Request memory req;
         req.initializeRequestForInlineJavaScript(SOURCE);
 
@@ -98,5 +98,26 @@ contract FunctionAssetConsumer is FunctionsClient {
 
     function getPrice(string memory asset) external view returns (uint256) {
         return assetToPrice[asset];
+    }
+}
+
+// Mock contract for testing
+contract MockFunctionAssetConsumer is FunctionAssetConsumer {
+    bytes32 private _nextRequestId;
+
+    constructor() FunctionAssetConsumer() {}
+
+    // Set the next requestId to return
+    function setNextRequestId(bytes32 requestId) external {
+        _nextRequestId = requestId;
+    }
+
+    // Override getAssetPrice to return a dummy requestId and do not call _sendRequest
+    function getAssetPrice(
+        string memory asset,
+        uint64 /*subscriptionId*/
+    ) public virtual override returns (bytes32 requestId) {
+        requestIdToAsset[_nextRequestId] = asset;
+        return _nextRequestId;
     }
 }

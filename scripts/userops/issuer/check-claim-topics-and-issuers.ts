@@ -14,9 +14,6 @@ async function main() {
   // Replace with the address you want to check as a key
   const addressToCheck = "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7"
 
-  // Purpose 3 = CLAIM
-  const claimPurpose = 3
-
   // Get the contract instance (read-only, so any signer/provider is fine)
   const identity = await ethers.getContractAt(
     "contracts/Onchain-ID/contracts/Identity.sol:Identity",
