@@ -39,8 +39,8 @@ module.exports = {
   },
   etherscan: {
     apiKey: {
-      pharos: "YOUR_API_KEY", // You'll need this from Pharos
-      "base-sepolia": "YOUR_BASESCAN_API_KEY", // Get this from https://basescan.org/
+      // pharos: "YOUR_API_KEY", // Commented out to fix verification
+      "base-sepolia": "6K189QVWH4VBQY1NE7J2GKICUES2PYBP3B", // Free API key works for verification
     },
     customChains: [
       {

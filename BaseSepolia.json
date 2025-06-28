@@ -93,5 +93,10 @@
     "Deployment owner": "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7",
     "Deployment address": "0xf04430Ffe6da40FE233c50909A9ebEA43dc8FDaB",
     "Contract Name": "Gateway"
+  },
+  "Orders": {
+    "Deployment owner": "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7",
+    "Deployment address": "0xF160191ce959CB26595c8E6eAEbe20707c2bE7D7",
+    "Contract Name": "Orders"
   }
 }
