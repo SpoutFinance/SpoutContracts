@@ -27,8 +27,8 @@ contract FunctionAssetConsumer is FunctionsClient {
         "  method: 'GET',"
         "  headers: {"
         "    accept: 'application/json',"
-        "    'APCA-API-KEY-ID': 'PK4GP2JHLHR1W846ENF9',"
-        "    'APCA-API-SECRET-KEY': '4pO04ynDBGWThgERuE0SYApMclOYxumv8ha6gdZq'"
+        "    'APCA-API-KEY-ID': 'PKUAON9P15H5CI7E59O7',"
+        "    'APCA-API-SECRET-KEY': 'AyjwmRAooIdtF3duPoX6AnfAzmotxikWwgQdFdoU'"
         "  }"
         "};"
         "const response = await Functions.makeHttpRequest({ url, ...options });"
@@ -36,7 +36,7 @@ contract FunctionAssetConsumer is FunctionsClient {
         "  throw Error('Request failed');"
         "}"
         "const json = response.data;"
-        "const askPrice = json?.quotes?.[asset]?.ap;"
+        "const askPrice = json?.quotes?.[asset]?.bp;"
         "if (typeof askPrice !== 'number') {"
         "  throw Error('askPrice is not a valid number');"
         "}"
@@ -98,26 +98,5 @@ contract FunctionAssetConsumer is FunctionsClient {
 
     function getPrice(string memory asset) external view returns (uint256) {
         return assetToPrice[asset];
-    }
-}
-
-// Mock contract for testing
-contract MockFunctionAssetConsumer is FunctionAssetConsumer {
-    bytes32 private _nextRequestId;
-
-    constructor() FunctionAssetConsumer() {}
-
-    // Set the next requestId to return
-    function setNextRequestId(bytes32 requestId) external {
-        _nextRequestId = requestId;
-    }
-
-    // Override getAssetPrice to return a dummy requestId and do not call _sendRequest
-    function getAssetPrice(
-        string memory asset,
-        uint64 /*subscriptionId*/
-    ) public virtual override returns (bytes32 requestId) {
-        requestIdToAsset[_nextRequestId] = asset;
-        return _nextRequestId;
     }
 }
