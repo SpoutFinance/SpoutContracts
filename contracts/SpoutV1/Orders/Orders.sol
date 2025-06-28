@@ -9,16 +9,25 @@ import {IOrdersReceiver} from "../interface/IOrdersReceiver.sol";
 contract Orders is Ownable, FunctionAssetConsumer, IOrdersReceiver {
     event BuyOrderCreated(
         address indexed user,
+        string ticker,
         address token,
         uint256 usdcAmount,
         uint256 assetAmount,
         uint256 price
     );
-    event SellOrderCreated(address token, uint256 amount, uint256 price);
+    event SellOrderCreated(
+        address indexed user,
+        string ticker,
+        address token,
+        uint256 usdcAmount,
+        uint256 assetAmount,
+        uint256 price
+    );
 
     // Store pending orders
     struct PendingBuyOrder {
         address user;
+        string ticker;
         address token;
         uint256 usdcAmount;
         address orderAddr;
@@ -28,6 +37,7 @@ contract Orders is Ownable, FunctionAssetConsumer, IOrdersReceiver {
     // Store pending sell orders
     struct PendingSellOrder {
         address user;
+        string ticker;
         address token;
         uint256 tokenAmount;
         address orderAddr;
@@ -38,6 +48,7 @@ contract Orders is Ownable, FunctionAssetConsumer, IOrdersReceiver {
     // orderAddr is the address to receive the callback
     function buyAsset(
         string memory asset,
+        string memory ticker,
         address token,
         uint256 usdcAmount,
         uint64 subscriptionId,
@@ -49,6 +60,7 @@ contract Orders is Ownable, FunctionAssetConsumer, IOrdersReceiver {
         // Store pending order with callback address
         pendingBuyOrders[requestId] = PendingBuyOrder(
             msg.sender,
+            ticker,
             token,
             usdcAmount,
             orderAddr
@@ -59,6 +71,7 @@ contract Orders is Ownable, FunctionAssetConsumer, IOrdersReceiver {
     // orderAddr is the address to receive the callback (usually msg.sender, or another contract)
     function sellAsset(
         string memory asset,
+        string memory ticker,
         address token,
         uint256 tokenAmount,
         uint64 subscriptionId,
@@ -69,6 +82,7 @@ contract Orders is Ownable, FunctionAssetConsumer, IOrdersReceiver {
 
         pendingSellOrders[requestId] = PendingSellOrder(
             msg.sender,
+            ticker,
             token,
             tokenAmount,
             orderAddr
@@ -87,6 +101,7 @@ contract Orders is Ownable, FunctionAssetConsumer, IOrdersReceiver {
         // Emit event
         emit BuyOrderCreated(
             order.user,
+            order.ticker,
             order.token,
             order.usdcAmount,
             assetAmount,
@@ -107,7 +122,14 @@ contract Orders is Ownable, FunctionAssetConsumer, IOrdersReceiver {
         uint256 usdcAmount = (order.tokenAmount * price) / 1e18;
 
         // Emit event
-        emit SellOrderCreated(order.token, order.tokenAmount, price);
+        emit SellOrderCreated(
+            order.user,
+            order.ticker,
+            order.token,
+            usdcAmount,
+            order.tokenAmount,
+            price
+        );
 
         // Clean up
         delete pendingSellOrders[requestId];
