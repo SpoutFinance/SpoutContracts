@@ -35,6 +35,7 @@
   },
   "dependencies": {
     "@chainlink/contracts": "^1.3.0",
-    "@tokenysolutions/t-rex": "^4.1.6"
+    "@tokenysolutions/t-rex": "^4.1.6",
+    "axios": "^1.10.0"
   }
 }
