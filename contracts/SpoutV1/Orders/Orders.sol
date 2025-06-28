@@ -52,7 +52,7 @@ contract Orders is Ownable, FunctionAssetConsumer, IOrdersReceiver {
         address token,
         uint256 usdcAmount,
         uint64 subscriptionId,
-        address orderAddr
+        address orderAddr // address calling buyAsset() function
     ) public {
         // Request price from inherited FunctionAssetConsumer
         bytes32 requestId = getAssetPrice(asset, subscriptionId);
@@ -75,7 +75,7 @@ contract Orders is Ownable, FunctionAssetConsumer, IOrdersReceiver {
         address token,
         uint256 tokenAmount,
         uint64 subscriptionId,
-        address orderAddr
+        address orderAddr // address calling buyAsset() function
     ) public {
         // Request price from inherited FunctionAssetConsumer
         bytes32 requestId = getAssetPrice(asset, subscriptionId);
