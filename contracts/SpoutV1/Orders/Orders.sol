@@ -118,7 +118,7 @@ contract Orders is Ownable, FunctionAssetConsumer, IOrdersReceiver {
         bytes32 requestId,
         bytes memory response,
         bytes memory err
-    ) internal override {
+    ) internal virtual override {
         string memory asset = requestIdToAsset[requestId];
         if (bytes(asset).length == 0) {
             revert UnexpectedRequestID(requestId);

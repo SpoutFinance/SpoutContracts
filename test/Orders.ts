@@ -2,7 +2,7 @@ const { expect } = require("chai")
 const { ethers } = require("hardhat")
 
 describe("Orders", function () {
-  let Orders, orders, owner, user
+  let Orders, orders, owner, user, mockFunctionAssetConsumer
   const asset = "LQD"
   const token = "0xB5F83286a6F8590B4d01eC67c885252Ec5d0bdDB" // mock token address
   const usdcAmount = ethers.utils.parseUnits("100", 6) // 100 USDC
@@ -12,13 +12,19 @@ describe("Orders", function () {
 
   beforeEach(async function () {
     ;[owner, user] = await ethers.getSigners()
-    Orders = await ethers.getContractFactory("Orders")
-    orders = await Orders.deploy()
+    const TestOrders = await ethers.getContractFactory("TestOrders")
+    orders = await TestOrders.deploy()
     await orders.deployed()
+    const MockFunctionAssetConsumer = await ethers.getContractFactory(
+      "MockFunctionAssetConsumer"
+    )
+    mockFunctionAssetConsumer = await MockFunctionAssetConsumer.deploy()
+    await mockFunctionAssetConsumer.deployed()
   })
 
   it("should process a buy order and emit event", async function () {
-    // 1. User calls buyAsset
+    const requestId = ethers.utils.formatBytes32String("buy1")
+    await mockFunctionAssetConsumer.setNextRequestId(requestId)
     const tx = await orders.connect(user).buyAsset(
       asset,
       token,
@@ -29,7 +35,7 @@ describe("Orders", function () {
     const receipt = await tx.wait()
     console.log("the transaction receipt:", receipt)
     // 2. Get requestId from logs (simulate as first mapping key)
-    const requestId = await orders.requestIdToAsset(
+    const requestIdFromLogs = await orders.requestIdToAsset(
       Object.keys(await orders.pendingBuyOrders())[0]
     )
     // 3. Simulate Chainlink fulfillment
@@ -37,18 +43,19 @@ describe("Orders", function () {
       orders
         .connect(owner)
         .fulfillRequest(
-          requestId,
+          requestIdFromLogs,
           ethers.utils.defaultAbiCoder.encode(["uint256"], [price]),
           "0x"
         )
     ).to.emit(orders, "BuyOrderCreated")
     // 4. Check order is deleted
-    const order = await orders.pendingBuyOrders(requestId)
+    const order = await orders.pendingBuyOrders(requestIdFromLogs)
     expect(order.user).to.equal(ethers.constants.AddressZero)
   })
 
   it("should process a sell order and emit event", async function () {
-    // 1. User calls sellAsset
+    const requestId = ethers.utils.formatBytes32String("sell1")
+    await mockFunctionAssetConsumer.setNextRequestId(requestId)
     const tx = await orders.connect(user).sellAsset(
       asset,
       token,
@@ -58,7 +65,7 @@ describe("Orders", function () {
     )
     const receipt = await tx.wait()
     // 2. Get requestId from logs (simulate as first mapping key)
-    const requestId = await orders.requestIdToAsset(
+    const requestIdFromLogs = await orders.requestIdToAsset(
       Object.keys(await orders.pendingSellOrders())[0]
     )
     // 3. Simulate Chainlink fulfillment
@@ -66,13 +73,13 @@ describe("Orders", function () {
       orders
         .connect(owner)
         .fulfillRequest(
-          requestId,
+          requestIdFromLogs,
           ethers.utils.defaultAbiCoder.encode(["uint256"], [price]),
           "0x"
         )
     ).to.emit(orders, "SellOrderCreated")
     // 4. Check order is deleted
-    const order = await orders.pendingSellOrders(requestId)
+    const order = await orders.pendingSellOrders(requestIdFromLogs)
     expect(order.user).to.equal(ethers.constants.AddressZero)
   })
 })

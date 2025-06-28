@@ -3,8 +3,8 @@ const { ethers } = require("hardhat")
 async function main() {
   // Replace with your deployed IdentityRegistry address
   const identityRegistryAddress = "0x296D988cd8193D5c67a71A68E9Bdf533f53f943E"
-  // Replace with the wallet address you want to check
-  const walletToCheck = "0x23EBeA62B3dB762475Db41Dc41eDa7e2021e1C55"
+  // Replace with the RECIPIENT wallet address you want to check (NOT ClaimIssuer)
+  const walletToCheck = "0x369B11fb8C65d02b3BdD68b922e8f0D6FDB58717" // Recipient wallet
 
   const identityRegistry = await ethers.getContractAt(
     "contracts/ERC3643/registry/implementation/IdentityRegistry.sol:IdentityRegistry",
