@@ -169,7 +169,7 @@ contract Orders is Ownable, FunctionAssetConsumer, IOrdersReceiver {
         delete pendingSellOrders[requestId];
     }
 
-    function FulFillSellOrderUSDCWithdraw(uint256 amount) public onlyAgent {
+    function withdrawUSDC(uint256 amount) public onlyAgent {
         usdcToken.transfer(msg.sender, amount);
         emit FulFillSellOrderUSDCWithdraw(msg.sender, amount);
     }
