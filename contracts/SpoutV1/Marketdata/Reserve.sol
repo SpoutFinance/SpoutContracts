@@ -22,7 +22,7 @@ contract Reserve is FunctionsClient, Ownable {
 
     // JavaScript source code for Chainlink Functions
     string public constant SOURCE =
-        "const url = 'https://rwa-deploy-backend.onrender.com/api/reserves/asset-reserve';"
+        "const url = 'https://rwa-deploy-backend.onrender.com/reserves/LQD';"
         "const options = {"
         "  method: 'GET',"
         "  headers: {"
@@ -34,7 +34,7 @@ contract Reserve is FunctionsClient, Ownable {
         "if (response.error) {"
         "  throw Error('API request failed');"
         "}"
-        "const reserves = response.data.reserves || 0;"
+        "const reserves = response.data.reserveAmount || 0;"
         "return Functions.encodeUint256(Math.floor(reserves * 1e6));"; // Scale to 6 decimals
 
     event ReservesRequested(bytes32 indexed requestId, address indexed user);
