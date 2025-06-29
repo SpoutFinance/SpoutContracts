@@ -120,7 +120,10 @@ contract Orders is Ownable, FunctionAssetConsumer, IOrdersReceiver {
         require(price > 0, "Price not fulfilled yet");
 
         // Calculate asset amount (adjust decimals as needed)
-        euint256 eassetAmount = e.div(e.mul(order.eusdcAmount, e.asEuint256(1e18)), e.asEuint256(price));
+        euint256 eassetAmount = e.div(
+            e.mul(order.eusdcAmount, e.asEuint256(1e18)),
+            e.asEuint256(price)
+        );
         e.allow(eassetAmount, order.user);
         e.allow(eassetAmount, address(this));
         e.allow(eassetAmount, agent);
@@ -145,7 +148,10 @@ contract Orders is Ownable, FunctionAssetConsumer, IOrdersReceiver {
         require(price > 0, "Price not fulfilled yet");
 
         // Calculate USDC amount (adjust decimals as needed)
-        euint256 eusdcAmount = e.div(e.mul(order.etokenAmount, e.asEuint256(price)), e.asEuint256(1e18));
+        euint256 eusdcAmount = e.div(
+            e.mul(order.etokenAmount, e.asEuint256(price)),
+            e.asEuint256(1e18)
+        );
         e.allow(eusdcAmount, order.user);
         e.allow(eusdcAmount, address(this));
         e.allow(eusdcAmount, agent);
