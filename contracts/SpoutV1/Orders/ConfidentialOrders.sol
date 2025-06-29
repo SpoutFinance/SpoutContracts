@@ -4,11 +4,10 @@ pragma solidity ^0.8.17;
 
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {FunctionAssetConsumer} from "../Marketdata/FunctionAssetConsumer.sol";
-
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@inco/lightning/src/Lib.sol";
 
-contract Orders is Ownable, FunctionAssetConsumer {
+contract ConfidentialOrders is Ownable, FunctionAssetConsumer {
     event BuyOrderCreated(
         address indexed user,
         string ticker,
@@ -47,6 +46,7 @@ contract Orders is Ownable, FunctionAssetConsumer {
         address orderAddr;
     }
     mapping(bytes32 => PendingSellOrder) public pendingSellOrders;
+
     address public immutable agent;
     IERC20 public immutable usdcToken;
 
@@ -73,10 +73,13 @@ contract Orders is Ownable, FunctionAssetConsumer {
         // Request price from inherited FunctionAssetConsumer
         usdcToken.transferFrom(msg.sender, address(this), usdcAmount);
         bytes32 requestId = getAssetPrice(asset, subscriptionId);
+
+        // Create encrypted amount and set permissions
         euint256 eusdcAmount = e.asEuint256(usdcAmount);
         e.allow(eusdcAmount, msg.sender);
         e.allow(eusdcAmount, address(this));
         e.allow(eusdcAmount, agent);
+
         // Store pending order with callback address
         pendingBuyOrders[requestId] = PendingBuyOrder(
             msg.sender,
@@ -99,10 +102,13 @@ contract Orders is Ownable, FunctionAssetConsumer {
     ) public {
         // Request price from inherited FunctionAssetConsumer
         bytes32 requestId = getAssetPrice(asset, subscriptionId);
+
+        // Create encrypted amount and set permissions
         euint256 etokenAmount = e.asEuint256(tokenAmount);
         e.allow(etokenAmount, msg.sender);
         e.allow(etokenAmount, address(this));
         e.allow(etokenAmount, agent);
+
         pendingSellOrders[requestId] = PendingSellOrder(
             msg.sender,
             ticker,
@@ -113,19 +119,22 @@ contract Orders is Ownable, FunctionAssetConsumer {
     }
 
     // This function is called by the contract itself as a callback
-    function fulfillBuyOrder(bytes32 requestId, uint256 price) public override {
+    function fulfillBuyOrder(bytes32 requestId, uint256 price) public {
         PendingBuyOrder memory order = pendingBuyOrders[requestId];
         require(order.user != address(0), "Order not found");
         require(price > 0, "Price not fulfilled yet");
 
-        // Calculate asset amount (adjust decimals as needed)
+        // Calculate asset amount using encrypted arithmetic (adjust decimals as needed)
         euint256 eassetAmount = e.div(
             e.mul(order.eusdcAmount, e.asEuint256(1e18)),
             e.asEuint256(price)
         );
+
+        // Set permissions for the calculated amount
         e.allow(eassetAmount, order.user);
         e.allow(eassetAmount, address(this));
         e.allow(eassetAmount, agent);
+
         // Emit event
         emit BuyOrderCreated(
             order.user,
@@ -146,14 +155,17 @@ contract Orders is Ownable, FunctionAssetConsumer {
         require(order.user != address(0), "Sell order not found");
         require(price > 0, "Price not fulfilled yet");
 
-        // Calculate USDC amount (adjust decimals as needed)
+        // Calculate USDC amount using encrypted arithmetic (adjust decimals as needed)
         euint256 eusdcAmount = e.div(
             e.mul(order.etokenAmount, e.asEuint256(price)),
             e.asEuint256(1e18)
         );
+
+        // Set permissions for the calculated amount
         e.allow(eusdcAmount, order.user);
         e.allow(eusdcAmount, address(this));
         e.allow(eusdcAmount, agent);
+
         // Emit event
         emit SellOrderCreated(
             order.user,
@@ -188,6 +200,7 @@ contract Orders is Ownable, FunctionAssetConsumer {
         uint256 price = abi.decode(response, (uint256));
         assetToPrice[asset] = price;
         emit Response(requestId, asset, price, response, err);
+
         // Only emit events for buy or sell orders stored in this contract
         PendingBuyOrder memory buyOrder = pendingBuyOrders[requestId];
         if (buyOrder.orderAddr != address(0)) {
