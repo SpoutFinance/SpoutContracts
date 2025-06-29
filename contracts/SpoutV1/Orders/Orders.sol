@@ -47,11 +47,18 @@ contract Orders is Ownable, FunctionAssetConsumer, IOrdersReceiver {
     }
     mapping(bytes32 => PendingSellOrder) public pendingSellOrders;
 
+    address public immutable agent;
     IERC20 public immutable usdcToken;
 
-    constructor(address _owner, address _usdc) {
+    constructor(address _owner, address _agent, address _usdc) {
         _transferOwnership(_owner);
+        agent = _agent;
         usdcToken = IERC20(_usdc);
+    }
+
+    modifier onlyAgent() {
+        require(msg.sender == agent, "Only agent can call this function");
+        _;
     }
 
     // Buy asset with USDC, requesting price from oracle
@@ -148,7 +155,7 @@ contract Orders is Ownable, FunctionAssetConsumer, IOrdersReceiver {
         delete pendingSellOrders[requestId];
     }
 
-    function withdrawUSDC(uint256 amount) public {
+    function withdrawUSDC(uint256 amount) public onlyAgent {
         usdcToken.transfer(msg.sender, amount);
         emit FulFillSellOrderUSDCWithdraw(msg.sender, amount);
     }

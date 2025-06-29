@@ -19,8 +19,16 @@ async function main() {
     "✅ New DON_ID: 0x66756e2d626173652d7365706f6c69612d310000000000000000000000000000 (fun-base-sepolia-1)"
   )
 
+  // Constructor parameters
+  const owner = deployer.address
+  const usdcAddress = "0x036CbD53842c5426634e7929541eC2318f3dCF7e" // Base Sepolia USDC
+
+  console.log("\n📝 Constructor parameters:")
+  console.log("Owner:", owner)
+  console.log("USDC Token:", usdcAddress)
+
   const Orders = await ethers.getContractFactory("Orders")
-  const orders = await Orders.deploy()
+  const orders = await Orders.deploy(owner, usdcAddress)
 
   await orders.deployed()
 
