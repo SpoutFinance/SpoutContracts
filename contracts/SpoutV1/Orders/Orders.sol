@@ -4,10 +4,9 @@ pragma solidity ^0.8.17;
 
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {FunctionAssetConsumer} from "../Marketdata/FunctionAssetConsumer.sol";
-import {IOrdersReceiver} from "../interface/IOrdersReceiver.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-contract Orders is Ownable, FunctionAssetConsumer, IOrdersReceiver {
+contract Orders is Ownable, FunctionAssetConsumer {
     event BuyOrderCreated(
         address indexed user,
         string ticker,
@@ -110,7 +109,7 @@ contract Orders is Ownable, FunctionAssetConsumer, IOrdersReceiver {
     }
 
     // This function is called by the contract itself as a callback
-    function fulfillBuyOrder(bytes32 requestId, uint256 price) public override {
+    function fulfillBuyOrder(bytes32 requestId, uint256 price) public {
         PendingBuyOrder memory order = pendingBuyOrders[requestId];
         require(order.user != address(0), "Order not found");
         require(price > 0, "Price not fulfilled yet");

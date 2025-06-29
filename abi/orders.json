@@ -1,5 +1,5 @@
 {
-  "address": "0xDf62Cd8e1b78093Ce79BDdEFF6b6b18A0C351423",
+  "address": "0xBa20ef0d4A8015f92E70dfdf73964EbD5f67bAd1",
   "abi": [
     {
       "inputs": [
@@ -142,32 +142,6 @@
           "internalType": "bytes32",
           "name": "id",
           "type": "bytes32"
-        }
-      ],
-      "name": "RequestFulfilled",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "bytes32",
-          "name": "id",
-          "type": "bytes32"
-        }
-      ],
-      "name": "RequestSent",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "bytes32",
-          "name": "requestId",
-          "type": "bytes32"
         },
         {
           "indexed": false,
@@ -190,7 +164,7 @@
         {
           "indexed": false,
           "internalType": "bytes",
-          "name": "error",
+          "name": "err",
           "type": "bytes"
         }
       ],
@@ -391,6 +365,25 @@
         }
       ],
       "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "asset",
+          "type": "string"
+        }
+      ],
+      "name": "getLatestPrice",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "price",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
       "type": "function"
     },
     {

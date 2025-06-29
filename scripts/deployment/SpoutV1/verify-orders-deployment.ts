@@ -2,7 +2,7 @@ import { ethers } from "hardhat"
 
 async function main() {
   const [deployer] = await ethers.getSigners()
-  const contractAddress = "0x0070EA7A0CAD2Fb571DE4B90Cc1DdEA9268aDc0f"
+  const contractAddress = "0xBa20ef0d4A8015f92E70dfdf73964EbD5f67bAd1"
 
   console.log("Verifying Orders contract at:", contractAddress)
   console.log("Using account:", deployer.address)

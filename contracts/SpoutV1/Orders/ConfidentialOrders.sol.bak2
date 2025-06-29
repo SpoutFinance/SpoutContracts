@@ -4,12 +4,11 @@ pragma solidity ^0.8.17;
 
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {FunctionAssetConsumer} from "../Marketdata/FunctionAssetConsumer.sol";
-import {IOrdersReceiver} from "../interface/IOrdersReceiver.sol";
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@inco/lightning/src/Lib.sol";
 
-contract Orders is Ownable, FunctionAssetConsumer, IOrdersReceiver {
+contract Orders is Ownable, FunctionAssetConsumer {
     event BuyOrderCreated(
         address indexed user,
         string ticker,

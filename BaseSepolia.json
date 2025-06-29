@@ -96,12 +96,17 @@
   },
   "Orders": {
     "Deployment owner": "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7",
-    "Deployment address": "0xDf62Cd8e1b78093Ce79BDdEFF6b6b18A0C351423",
+    "Deployment address": "0xBa20ef0d4A8015f92E70dfdf73964EbD5f67bAd1",
     "Contract Name": "Orders"
   },
   "Reserve": {
     "Deployment owner": "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7",
     "Deployment address": "0xf26c960Abf98875f87764502f64e8F5ef9134C20",
     "Contract Name": "Reserve"
+  },
+  "ReserveAutomation": {
+    "Deployment owner": "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7",
+    "Deployment address": "0xE7173fb008c3FBff52B5B02b0D0c57f0C35fC59C",
+    "Contract Name": "ReserveAutomation"
   }
 }
