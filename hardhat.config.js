@@ -22,6 +22,24 @@ module.exports = {
           },
         },
       },
+      {
+        version: "0.8.20",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
+        },
+      },
+      {
+        version: "0.8.22",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
+        },
+      },
     ],
     importAliases: {
       "@": "./contracts/SpoutV1",

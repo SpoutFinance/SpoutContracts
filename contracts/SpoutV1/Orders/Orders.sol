@@ -5,6 +5,7 @@ pragma solidity ^0.8.17;
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {FunctionAssetConsumer} from "../Marketdata/FunctionAssetConsumer.sol";
 import {IOrdersReceiver} from "../interface/IOrdersReceiver.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract Orders is Ownable, FunctionAssetConsumer, IOrdersReceiver {
     event BuyOrderCreated(
@@ -23,6 +24,8 @@ contract Orders is Ownable, FunctionAssetConsumer, IOrdersReceiver {
         uint256 assetAmount,
         uint256 price
     );
+
+    event FulFillSellOrderUSDCWithdraw(address indexed user, uint256 amount);
 
     // Store pending orders
     struct PendingBuyOrder {
@@ -44,6 +47,13 @@ contract Orders is Ownable, FunctionAssetConsumer, IOrdersReceiver {
     }
     mapping(bytes32 => PendingSellOrder) public pendingSellOrders;
 
+    IERC20 public immutable usdcToken;
+
+    constructor(address _owner, address _usdc) {
+        _transferOwnership(_owner);
+        usdcToken = IERC20(_usdc);
+    }
+
     // Buy asset with USDC, requesting price from oracle
     // orderAddr is the address to receive the callback
     function buyAsset(
@@ -54,6 +64,9 @@ contract Orders is Ownable, FunctionAssetConsumer, IOrdersReceiver {
         uint64 subscriptionId,
         address orderAddr // address calling buyAsset() function
     ) public {
+        // Transfer USDC from user to contract
+        usdcToken.transferFrom(msg.sender, address(this), usdcAmount);
+
         // Request price from inherited FunctionAssetConsumer
         bytes32 requestId = getAssetPrice(asset, subscriptionId);
 
@@ -133,6 +146,11 @@ contract Orders is Ownable, FunctionAssetConsumer, IOrdersReceiver {
 
         // Clean up
         delete pendingSellOrders[requestId];
+    }
+
+    function withdrawUSDC(uint256 amount) public {
+        usdcToken.transfer(msg.sender, amount);
+        emit FulFillSellOrderUSDCWithdraw(msg.sender, amount);
     }
 
     // Override fulfillRequest to call the callback for buy or sell orders
