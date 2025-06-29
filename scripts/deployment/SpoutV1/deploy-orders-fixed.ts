@@ -21,14 +21,16 @@ async function main() {
 
   // Constructor parameters
   const owner = deployer.address
+  const agent = deployer.address // Agent is also the deployer for now
   const usdcAddress = "0x036CbD53842c5426634e7929541eC2318f3dCF7e" // Base Sepolia USDC
 
   console.log("\n📝 Constructor parameters:")
   console.log("Owner:", owner)
+  console.log("Agent:", agent)
   console.log("USDC Token:", usdcAddress)
 
   const Orders = await ethers.getContractFactory("Orders")
-  const orders = await Orders.deploy(owner, usdcAddress)
+  const orders = await Orders.deploy(owner, agent, usdcAddress)
 
   await orders.deployed()
 

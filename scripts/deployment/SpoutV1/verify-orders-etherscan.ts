@@ -1,16 +1,22 @@
 import { run } from "hardhat"
 
 async function main() {
-  const contractAddress = "0x0070EA7A0CAD2Fb571DE4B90Cc1DdEA9268aDc0f"
+  const contractAddress = "0xDf62Cd8e1b78093Ce79BDdEFF6b6b18A0C351423"
   const contractName = "Orders"
+
+  // Constructor arguments used during deployment
+  const owner = "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7"
+  const agent = "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7"
+  const usdcAddress = "0x036CbD53842c5426634e7929541eC2318f3dCF7e"
 
   console.log(`Verifying ${contractName} contract at: ${contractAddress}`)
   console.log("Network: Base Sepolia")
+  console.log("Constructor arguments:", [owner, agent, usdcAddress])
 
   try {
     await run("verify:verify", {
       address: contractAddress,
-      constructorArguments: [], // Orders contract has no constructor arguments
+      constructorArguments: [owner, agent, usdcAddress],
       contract: "contracts/SpoutV1/Orders/Orders.sol:Orders",
     })
 
