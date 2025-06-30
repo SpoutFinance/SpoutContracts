@@ -16,7 +16,7 @@ contract FunctionAssetConsumer is FunctionsClient {
     // Supported networks https://docs.chain.link/chainlink-functions/supported-networks
     address constant ROUTER = 0xf9B8fc078197181C841c296C876945aaa425B278; // Base Sepolia
     bytes32 constant DON_ID =
-        0x66756e2d657468657265756d2d7365706f6c69612d3100000000000000000000;
+        0x66756e2d626173652d7365706f6c69612d310000000000000000000000000000; // "fun-base-sepolia-1"
 
     uint32 constant GAS_LIMIT = 300000;
 
@@ -27,8 +27,8 @@ contract FunctionAssetConsumer is FunctionsClient {
         "  method: 'GET',"
         "  headers: {"
         "    accept: 'application/json',"
-        "    'APCA-API-KEY-ID': 'PK4GP2JHLHR1W846ENF9',"
-        "    'APCA-API-SECRET-KEY': '4pO04ynDBGWThgERuE0SYApMclOYxumv8ha6gdZq'"
+        "    'APCA-API-KEY-ID': 'PKUAON9P15H5CI7E59O7',"
+        "    'APCA-API-SECRET-KEY': 'AyjwmRAooIdtF3duPoX6AnfAzmotxikWwgQdFdoU'"
         "  }"
         "};"
         "const response = await Functions.makeHttpRequest({ url, ...options });"
@@ -36,7 +36,7 @@ contract FunctionAssetConsumer is FunctionsClient {
         "  throw Error('Request failed');"
         "}"
         "const json = response.data;"
-        "const askPrice = json?.quotes?.[asset]?.ap;"
+        "const askPrice = json?.quotes?.[asset]?.bp;"
         "if (typeof askPrice !== 'number') {"
         "  throw Error('askPrice is not a valid number');"
         "}"
@@ -58,7 +58,7 @@ contract FunctionAssetConsumer is FunctionsClient {
     function getAssetPrice(
         string memory asset,
         uint64 subscriptionId
-    ) external returns (bytes32 requestId) {
+    ) public virtual returns (bytes32 requestId) {
         FunctionsRequest.Request memory req;
         req.initializeRequestForInlineJavaScript(SOURCE);
 
@@ -81,7 +81,7 @@ contract FunctionAssetConsumer is FunctionsClient {
         bytes32 requestId,
         bytes memory response,
         bytes memory err
-    ) internal override {
+    ) internal virtual override {
         string memory asset = requestIdToAsset[requestId];
         if (bytes(asset).length == 0) {
             revert UnexpectedRequestID(requestId);

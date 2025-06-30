@@ -1,0 +1,32 @@
+{
+  "IdentityRegistry": {
+    "Deployment owner": "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7",
+    "Deployment address": "0xf6d6230Ae2f755B95A7305480D6F8921f45314A2",
+    "Contract Name": "IdentityRegistry"
+  },
+  "ClaimTopicsRegistry": {
+    "Deployment owner": "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7",
+    "Deployment address": "0xdd9f2d401D93115FCeb6aCC4178652A35B78607c",
+    "Contract Name": "ClaimTopicsRegistry"
+  },
+  "TrustedIssuersRegistry": {
+    "Deployment owner": "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7",
+    "Deployment address": "0xfc26cf55D53356Ce8C5c65368E3C9E8272c2c988",
+    "Contract Name": "TrustedIssuersRegistry"
+  },
+  "IdentityRegistryStorage": {
+    "Deployment owner": "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7",
+    "Deployment address": "0x8237C556EE389DC41C42Cd9eA62483D507f286B3",
+    "Contract Name": "IdentityRegistryStorage"
+  },
+  "ClaimIssuer": {
+    "Deployment owner": "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7",
+    "Deployment address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+    "Contract Name": "ClaimIssuer"
+  },
+  "ImplementationAuthority": {
+    "Deployment owner": "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7",
+    "Deployment address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+    "Contract Name": "ImplementationAuthority"
+  }
+}
