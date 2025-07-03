@@ -152,7 +152,7 @@ async function main() {
   // Claim Details for KYC/AML (FIXED claimTopics shape)
   const claimDetails = {
     claimTopics: [1], // KYC claim topic (should be uint256[])
-    issuers: [deployer.address], // Trusted issuer (you)
+    issuers: [deployer.address], // Trusted issuer our claimIssuer Contract
     issuerClaims: [[1]], // Claims that the issuer can emit (uint256[][])
   }
 

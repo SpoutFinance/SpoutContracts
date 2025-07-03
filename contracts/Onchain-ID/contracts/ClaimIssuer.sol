@@ -57,7 +57,7 @@ contract ClaimIssuer is IClaimIssuer, Identity {
         bytes memory sig,
         bytes memory data
     ) public view override(Identity, IClaimIssuer) returns (bool claimValid) {
-        bytes32 dataHash = keccak256(abi.encode(_identity, claimTopic, data));
+        bytes32 dataHash = keccak256(abi.encode(_identity, claimTopic, data)); // Hash of concatenated identity, claimTopic, data
         // Use abi.encodePacked to concatenate the message prefix and the message to sign.
         bytes32 prefixedHash = keccak256(
             abi.encodePacked("\x19Ethereum Signed Message:\n32", dataHash)

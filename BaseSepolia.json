@@ -108,5 +108,10 @@
     "Deployment owner": "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7",
     "Deployment address": "0xE7173fb008c3FBff52B5B02b0D0c57f0C35fC59C",
     "Contract Name": "ReserveAutomation"
+  },
+  "ClaimIssuer": {
+    "Deployment owner": "0x23EBeA62B3dB762475Db41Dc41eDa7e2021e1C55",
+    "Deployment address": "0xfBbB54Ea804cC2570EeAba2fea09d0c66582498F",
+    "Contract Name": "ClaimIssuer"
   }
 }

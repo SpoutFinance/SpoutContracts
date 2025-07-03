@@ -87,9 +87,12 @@ describe("AddClaim Functionality", function () {
     beforeEach(async function () {
       claimData = ethers.utils.toUtf8Bytes("KYC passed")
 
+      // Hash the claim data as required by the documentation
+      const claimDataHash = ethers.utils.keccak256(claimData)
+
       const encoded = ethers.utils.defaultAbiCoder.encode(
         ["address", "uint256", "bytes"],
-        [recipientOnchainID, topic, claimData]
+        [recipientOnchainID, topic, claimDataHash]
       )
       const dataHash = ethers.utils.keccak256(encoded)
 
@@ -97,11 +100,14 @@ describe("AddClaim Functionality", function () {
     })
 
     it("should validate correct signature from claim issuer", async function () {
+      // Use the same hash that was used for signing
+      const claimDataHash = ethers.utils.keccak256(claimData)
+
       const isValid = await claimIssuerContract.isClaimValid(
         recipientOnchainID,
         topic,
         signature,
-        ethers.utils.hexlify(claimData)
+        claimDataHash
       )
 
       expect(isValid).to.be.true
@@ -137,9 +143,12 @@ describe("AddClaim Functionality", function () {
     beforeEach(async function () {
       claimData = ethers.utils.toUtf8Bytes("KYC passed")
 
+      // Hash the claim data as required by the documentation
+      const claimDataHash = ethers.utils.keccak256(claimData)
+
       const encoded = ethers.utils.defaultAbiCoder.encode(
         ["address", "uint256", "bytes"],
-        [recipientOnchainID, topic, claimData]
+        [recipientOnchainID, topic, claimDataHash]
       )
       const dataHash = ethers.utils.keccak256(encoded)
 
@@ -151,12 +160,15 @@ describe("AddClaim Functionality", function () {
     it("should successfully add claim with valid signature", async function () {
       const identityWithCustomer = identity.connect(customer)
 
+      // Use the same hash that was used for signing
+      const claimDataHash = ethers.utils.keccak256(claimData)
+
       const tx = await identityWithCustomer.addClaim(
         topic,
         scheme,
         claimIssuerAddress,
         validSignature,
-        ethers.utils.hexlify(claimData),
+        claimDataHash,
         "https://spout.finance/claims/kyc"
       )
 
@@ -175,12 +187,15 @@ describe("AddClaim Functionality", function () {
       expect(claim.topic).to.equal(topic)
       expect(claim.scheme).to.equal(scheme)
       expect(claim.issuer).to.equal(claimIssuerAddress)
-      expect(claim.data).to.equal(ethers.utils.hexlify(claimData))
+      expect(claim.data).to.equal(claimDataHash)
     })
 
     it("should fail if sender doesn't have claim signer key", async function () {
       // Try to add claim from deployer (who doesn't have purpose 3 key)
       const identityWithDeployer = identity.connect(deployer)
+
+      // Use the same hash that was used for signing
+      const claimDataHash = ethers.utils.keccak256(claimData)
 
       try {
         await identityWithDeployer.addClaim(
@@ -188,7 +203,7 @@ describe("AddClaim Functionality", function () {
           scheme,
           claimIssuerAddress,
           validSignature,
-          ethers.utils.hexlify(claimData),
+          claimDataHash,
           ""
         )
         expect.fail("Should have thrown an error")
@@ -201,13 +216,16 @@ describe("AddClaim Functionality", function () {
       const identityWithCustomer = identity.connect(customer)
       const invalidSignature = "0x" + "0".repeat(130)
 
+      // Use the same hash that was used for signing
+      const claimDataHash = ethers.utils.keccak256(claimData)
+
       try {
         await identityWithCustomer.addClaim(
           topic,
           scheme,
           claimIssuerAddress,
           invalidSignature,
-          ethers.utils.hexlify(claimData),
+          claimDataHash,
           ""
         )
         expect.fail("Should have thrown an error")
@@ -223,9 +241,12 @@ describe("AddClaim Functionality", function () {
     beforeEach(async function () {
       claimData = ethers.utils.toUtf8Bytes("KYC passed")
 
+      // Hash the claim data as required by the documentation
+      const claimDataHash = ethers.utils.keccak256(claimData)
+
       const encoded = ethers.utils.defaultAbiCoder.encode(
         ["address", "uint256", "bytes"],
-        [recipientOnchainID, topic, claimData]
+        [recipientOnchainID, topic, claimDataHash]
       )
       const dataHash = ethers.utils.keccak256(encoded)
 
@@ -239,7 +260,7 @@ describe("AddClaim Functionality", function () {
         scheme,
         claimIssuerAddress,
         signature,
-        ethers.utils.hexlify(claimData),
+        claimDataHash,
         "test-uri"
       )
     })
@@ -252,11 +273,14 @@ describe("AddClaim Functionality", function () {
         )
       )
 
+      // Hash the claim data as required by the documentation
+      const claimDataHash = ethers.utils.keccak256(claimData)
+
       const claim = await identity.getClaim(claimId)
       expect(claim.topic).to.equal(topic)
       expect(claim.scheme).to.equal(scheme)
       expect(claim.issuer).to.equal(claimIssuerAddress)
-      expect(claim.data).to.equal(ethers.utils.hexlify(claimData))
+      expect(claim.data).to.equal(claimDataHash)
       expect(claim.uri).to.equal("test-uri")
     })
 
@@ -283,10 +307,13 @@ describe("AddClaim Functionality", function () {
     it("should complete full flow: sign, add, verify", async function () {
       const claimData = ethers.utils.toUtf8Bytes("KYC passed")
 
+      // Hash the claim data as required by the documentation
+      const claimDataHash = ethers.utils.keccak256(claimData)
+
       // 1. Generate signature
       const encoded = ethers.utils.defaultAbiCoder.encode(
         ["address", "uint256", "bytes"],
-        [recipientOnchainID, topic, claimData]
+        [recipientOnchainID, topic, claimDataHash]
       )
       const dataHash = ethers.utils.keccak256(encoded)
 
@@ -299,7 +326,7 @@ describe("AddClaim Functionality", function () {
         recipientOnchainID,
         topic,
         validSignature,
-        ethers.utils.hexlify(claimData)
+        claimDataHash
       )
       expect(isValidSignature).to.be.true
 
@@ -310,7 +337,7 @@ describe("AddClaim Functionality", function () {
         scheme,
         claimIssuerAddress,
         validSignature,
-        ethers.utils.hexlify(claimData),
+        claimDataHash,
         ""
       )
       await tx.wait()
