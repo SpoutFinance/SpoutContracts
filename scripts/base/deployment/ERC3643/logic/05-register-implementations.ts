@@ -59,12 +59,16 @@ async function main() {
   } catch (error) {
     if (error.reason === "version already exists") {
       console.log("✅ Version 1.0.0 already exists!")
-      
+
       // Check if current version is set to 1.0.0
       const currentVersion = await trexIA.getCurrentVersion()
       console.log("Current active version:", currentVersion)
-      
-      if (currentVersion.major === 1 && currentVersion.minor === 0 && currentVersion.patch === 0) {
+
+      if (
+        currentVersion.major === 1 &&
+        currentVersion.minor === 0 &&
+        currentVersion.patch === 0
+      ) {
         console.log("✅ Version 1.0.0 is already the active version!")
       } else {
         console.log("Setting Version 1.0.0 as active version...")
@@ -73,7 +77,7 @@ async function main() {
         console.log("✅ Version 1.0.0 set as active version!")
       }
     } else {
-      throw error; // Re-throw if it's a different error
+      throw error // Re-throw if it's a different error
     }
   }
 

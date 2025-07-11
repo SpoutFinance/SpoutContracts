@@ -4,7 +4,7 @@ async function main() {
   // --------------------------------------------------------------------------------------------
   //                                       PASTE YOUR ADDRESSES HERE
   // --------------------------------------------------------------------------------------------
-  const TREX_IA_ADDRESS = "0xBD456121D833e3d29Ef83c86f8dc57c97630878A" // The address from script 04
+  const TREX_IA_ADDRESS = "0xf3aDF2423C7aaBbd4Ad3ED8150F07036d2503335" // The address from script 04
   // --------------------------------------------------------------------------------------------
 
   console.log("Checking Implementation Authority status...")

@@ -2,7 +2,7 @@ import { ethers } from "hardhat"
 
 async function main() {
   // --- Paste your deployed IdFactory address here ---
-  const ID_FACTORY_ADDRESS = "0xb04eAce0e3D886Bc514e84Ed42a7C43FC2183536" // <-- Replace with deployed IdFactory address
+  const ID_FACTORY_ADDRESS = "0x18cB5F2774a80121d1067007933285B32516226a" // <-- Replace with deployed IdFactory address
 
   // --- Optionally, add approved signer addresses here ---
   const SIGNERS_TO_APPROVE: string[] = [

@@ -4,10 +4,10 @@ require("dotenv").config()
 async function main() {
   // Your deployed contract addresses
   const trustedIssuersRegistryAddress =
-    "0x760634e1dd6bDd20D5e4f728d9cEaB4E3E74814A"
+    "0x9d355e9fa281b860a77a42CFCbE273c03E2a3361"
   const claimTopicsRegistryAddress =
-    "0x0F9619aBf14980787A10Be58D02421445BC59D68"
-  const claimIssuerAddress = "0x3d3e0A0D7ee8af06630a041A2c0cEC9603d08720"
+    "0x8Fe87BBBE15Bc661B912ad475BA4ABC412a27A2D"
+  const claimIssuerAddress = "0xA5C77b623BEB3bC0071fA568de99e15Ccc06C7cb"
 
   const [deployer] = await ethers.getSigners()
   console.log("🔧 Setting up ClaimIssuer as trusted issuer...")

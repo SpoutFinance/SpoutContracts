@@ -4,16 +4,16 @@ async function main() {
   // --------------------------------------------------------------------------------------------
   //                                       PASTE YOUR ADDRESSES HERE
   // --------------------------------------------------------------------------------------------
-  const TREX_IA_ADDRESS = "0xBD456121D833e3d29Ef83c86f8dc57c97630878A" // The address from script 04
+  const TREX_IA_ADDRESS = "0xf3aDF2423C7aaBbd4Ad3ED8150F07036d2503335" // The address from script 04
 
-  const TOKEN_LOGIC_ADDRESS = "0x5De6e7cAE4b30d4CbF744B6Dd78c6418F5750570" // The address from script 01
-  const COMPLIANCE_LOGIC_ADDRESS = "0xCAdaFeDf40140C8eBCa3A0E802dfC4dD72869c9F" // The address from script 02
+  const TOKEN_LOGIC_ADDRESS = "0x2b4827c82bE29E8d0606BB42854B6ab05fa558F8" // The address from script 01
+  const COMPLIANCE_LOGIC_ADDRESS = "0x1642aD0378813C0f644805025163516E0dA5513b" // The address from script 02
 
   // Addresses from script 03
-  const IRS_LOGIC_ADDRESS = "0xC9EbB17FC1f5101Db84EA345693194c520b411bb"
-  const IR_LOGIC_ADDRESS = "0xa966bdf941ea2eccc8ADC453B977FFeE27bC2f55"
-  const CTR_LOGIC_ADDRESS = "0x40edF44F3B7bD10ae4423A758f3b8c68a01efca1"
-  const TIR_LOGIC_ADDRESS = "0xbeA4b5588d01CE6f400500A43815Be309A095287"
+  const IRS_LOGIC_ADDRESS = "0xBD456121D833e3d29Ef83c86f8dc57c97630878A"
+  const IR_LOGIC_ADDRESS = "0xA37b1f4D5a8876184D62b9097335A4f4555b7c5f"
+  const CTR_LOGIC_ADDRESS = "0x1631222510F3c3D77898FB05ca1AeAb35358b942"
+  const TIR_LOGIC_ADDRESS = "0xbC9c462b2eF2F8E4d29bC6B11d98172d58c6fD2e"
   // --------------------------------------------------------------------------------------------
 
   console.log(
@@ -59,12 +59,16 @@ async function main() {
   } catch (error) {
     if (error.reason === "version already exists") {
       console.log("✅ Version 1.0.0 already exists!")
-      
+
       // Check if current version is set to 1.0.0
       const currentVersion = await trexIA.getCurrentVersion()
       console.log("Current active version:", currentVersion)
-      
-      if (currentVersion.major === 1 && currentVersion.minor === 0 && currentVersion.patch === 0) {
+
+      if (
+        currentVersion.major === 1 &&
+        currentVersion.minor === 0 &&
+        currentVersion.patch === 0
+      ) {
         console.log("✅ Version 1.0.0 is already the active version!")
       } else {
         console.log("Setting Version 1.0.0 as active version...")
@@ -73,7 +77,7 @@ async function main() {
         console.log("✅ Version 1.0.0 set as active version!")
       }
     } else {
-      throw error; // Re-throw if it's a different error
+      throw error // Re-throw if it's a different error
     }
   }
 

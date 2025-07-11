@@ -4,10 +4,9 @@ async function main() {
   // --------------------------------------------------------------------------------------------
   //                                       PASTE YOUR ADDRESSES HERE
   // --------------------------------------------------------------------------------------------
-  const TREX_FACTORY_ADDRESS = "0x2Eac68d74c552E86b6EF6888b3E18817fAde1785" // The address from TREXProxy/07-deploy-trex-factory.ts
-  const TREX_IA_ADDRESS = "0xBD456121D833e3d29Ef83c86f8dc57c97630878A" // The address from logic/04-deploy-implementation-authority.ts
-  const ID_FACTORY_ADDRESS = "0xb04eAce0e3D886Bc514e84Ed42a7C43FC2183536" // The address from OnchainID/04-deploy-id-factory.ts
-  const COMPLIANCE_LOGIC_ADDRESS = "0xCAdaFeDf40140C8eBCa3A0E802dfC4dD72869c9F"
+  const TREX_FACTORY_ADDRESS = "0xF7aE103AacD84641Fa0c43860C23a8Cf7cE5DB5a" // The address from TREXProxy/07-deploy-trex-factory.ts
+  const TREX_IA_ADDRESS = "0xf3aDF2423C7aaBbd4Ad3ED8150F07036d2503335" // The address from logic/04-deploy-implementation-authority.ts
+  const ID_FACTORY_ADDRESS = "0x18cB5F2774a80121d1067007933285B32516226a" // The address from OnchainID/04-deploy-id-factory.ts
   // --------------------------------------------------------------------------------------------
 
   console.log("Deploying Spout RWA Token Suite...")
@@ -117,7 +116,7 @@ async function main() {
   )
 
   // Print all deployment parameters
-  const salt = "SpoutSUSCCorporateBondToken" // Change this to a new, random value if needed
+  const salt = "SpoutLQDToken" // Change this to a new, random value if needed
   console.log("Salt:", salt)
 
   // Build the TokenDetails struct for the suite
@@ -126,9 +125,9 @@ async function main() {
     // address of the owner of all contracts
     owner: deployer.address,
     // name of the token
-    name: "Spout US Corporate Bond Token",
+    name: "SpoutLQDToken",
     // symbol / ticker of the token
-    symbol: "SUSC",
+    symbol: "SLQD",
     // decimals of the token (can be between 0 and 18)
     decimals: 6,
     // identity registry storage address
@@ -152,7 +151,7 @@ async function main() {
   // Claim Details for KYC/AML (FIXED claimTopics shape)
   const claimDetails = {
     claimTopics: [1], // KYC claim topic (should be uint256[])
-    issuers: [deployer.address], // Trusted issuer our claimIssuer Contract
+    issuers: ["0xA5C77b623BEB3bC0071fA568de99e15Ccc06C7cb"], // Trusted issuer our claimIssuer Contract
     issuerClaims: [[1]], // Claims that the issuer can emit (uint256[][])
   }
 
