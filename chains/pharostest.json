@@ -1,0 +1,37 @@
+{
+  "TokenLogic": {
+    "Deployment owner": "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7",
+    "Deployment address": "0x2b4827c82bE29E8d0606BB42854B6ab05fa558F8",
+    "Contract Name": "Token"
+  },
+  "ModularComplianceLogic": {
+    "Deployment owner": "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7",
+    "Deployment address": "0x1642aD0378813C0f644805025163516E0dA5513b",
+    "Contract Name": "ModularCompliance"
+  },
+  "IdentityRegistryStorageLogic": {
+    "Deployment owner": "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7",
+    "Deployment address": "0xBD456121D833e3d29Ef83c86f8dc57c97630878A",
+    "Contract Name": "IdentityRegistryStorage"
+  },
+  "IdentityRegistryLogic": {
+    "Deployment owner": "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7",
+    "Deployment address": "0xA37b1f4D5a8876184D62b9097335A4f4555b7c5f",
+    "Contract Name": "IdentityRegistry"
+  },
+  "ClaimTopicsRegistryLogic": {
+    "Deployment owner": "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7",
+    "Deployment address": "0x1631222510F3c3D77898FB05ca1AeAb35358b942",
+    "Contract Name": "ClaimTopicsRegistry"
+  },
+  "TrustIssuerRegistryLogic": {
+    "Deployment owner": "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7",
+    "Deployment address": "0xbC9c462b2eF2F8E4d29bC6B11d98172d58c6fD2e",
+    "Contract Name": "ClaimTopicsRegistryStorage"
+  },
+  "TREXImplementationAuthority": {
+    "Deployment owner": "0x92b9baA72387Fb845D8Fe88d2a14113F9cb2C4E7",
+    "Deployment address": "0xf3aDF2423C7aaBbd4Ad3ED8150F07036d2503335",
+    "Contract Name": "TREXImplementationAuthority"
+  }
+}
