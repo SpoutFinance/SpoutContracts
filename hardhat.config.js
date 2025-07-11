@@ -48,6 +48,7 @@ module.exports = {
   networks: {
     pharos: {
       url: "https://testnet.dplabs-internal.com",
+      chainId: 688688,
       accounts: [vars.get("PRIVATE_KEY")],
     },
     "base-sepolia": {
@@ -62,11 +63,11 @@ module.exports = {
     },
     customChains: [
       {
-        network: "Pharos Testnet",
+        network: "pharos",
         chainId: 688688,
         urls: {
           apiURL: "https://testnet.dplabs-internal.com/api",
-          browserURL: "https://testnet.pharosscan.xyz/",
+          browserURL: "https://testnet.pharosscan.xyz",
         },
       },
       {
